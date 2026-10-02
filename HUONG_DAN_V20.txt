@@ -1,0 +1,309 @@
+ABA LEARNING PORTAL V20 — ĐỒNG BỘ TẤT CẢ + PUSH THẬT, DÙNG FREE
+
+KIẾN TRÚC
+1. Netlify Free: host website + Netlify Functions.
+2. Supabase Free: database + Auth + Realtime cho toàn bộ dữ liệu.
+3. OneSignal Free: Web Push ra điện thoại/PC kể cả khi website đóng.
+
+DỮ LIỆU ĐƯỢC ĐỒNG BỘ
+- Lịch khung + lịch thay đổi riêng từng tháng.
+- Sửa/xóa/thêm buổi theo tháng.
+- Giáo viên xác nhận.
+- Quản lý xác nhận.
+- Buổi nghỉ + lý do + khôi phục.
+- Thông báo.
+- Phản hồi.
+- Wi‑Fi nhiều tầng.
+- Lương Quản lý.
+- Tổng hợp cuối tháng.
+- Lịch sử audit.
+- Dữ liệu vẫn cache localStorage để mở nhanh, nhưng Supabase là nguồn dùng chung giữa các máy.
+
+============================================================
+PHẦN A — TẠO SUPABASE FREE
+============================================================
+
+A1. Vào https://supabase.com và đăng ký tài khoản.
+A2. Tạo New project.
+- Organization: chọn organization free.
+- Project name: ABA Learning Portal
+- Database password: tự đặt một mật khẩu mạnh và lưu lại.
+- Region: chọn khu vực gần Việt Nam nếu dashboard cho chọn.
+- Chờ project khởi tạo.
+
+A3. Tạo bảng + RLS + Realtime
+- Trong Supabase Dashboard chọn SQL Editor.
+- Chọn New query.
+- Mở file SUPABASE_SETUP.sql trong bộ v20.
+- Copy toàn bộ nội dung -> paste vào SQL Editor -> Run.
+- Sau khi chạy, Table Editor phải thấy bảng public.aba_app_state có 1 dòng id = 1.
+
+A4. Lấy thông tin Supabase
+Trong Supabase Dashboard:
+- Project Settings / API Keys.
+- Lấy Project URL => dùng cho SUPABASE_URL.
+- Lấy Publishable key (sb_publishable_...) => dùng cho SUPABASE_PUBLISHABLE_KEY.
+KHÔNG dùng Secret key / service_role trong trình duyệt.
+
+A5. Tạo tài khoản đăng nhập Portal
+Cách dễ nhất ban đầu:
+- Authentication > Users > Add user.
+- Tạo hoặc mời một email dùng cho trung tâm.
+- Có thể dùng 1 tài khoản chung trên các máy trước để chạy nhanh.
+- Nếu muốn quản lý tài khoản chặt hơn, tạo tài khoản riêng cho từng giáo viên/quản lý.
+App v20 vẫn giữ cách chọn vai trò/giáo viên hiện tại sau khi đăng nhập Cloud.
+
+Khuyến nghị:
+- Authentication > Providers > Email.
+- Tắt "Allow new users to sign up" nếu bạn chỉ muốn tài khoản do Admin Supabase tạo.
+- Chỉ những user đã đăng nhập mới được đọc/ghi bảng aba_app_state.
+
+============================================================
+PHẦN B — ONESIGNAL FREE CHO PUSH
+============================================================
+
+B1. Vào https://onesignal.com -> tạo tài khoản Free.
+B2. Tạo App mới -> chọn Web Push.
+B3. Website URL:
+https://hethongquanlylophocaba.netlify.app
+
+B4. Trong OneSignal > Settings > Keys & IDs lấy:
+- App ID => ONESIGNAL_APP_ID
+- App API Key => ONESIGNAL_APP_API_KEY
+
+B5. Không đưa App API Key vào HTML.
+Bản v20 gửi Push thông qua Netlify Function.
+
+============================================================
+PHẦN C — CÀI NETLIFY CLI (LÀM 1 LẦN)
+============================================================
+
+C1. Cài Node.js LTS:
+https://nodejs.org
+
+C2. Mở Command Prompt / PowerShell và chạy:
+npm install -g netlify-cli
+
+C3. Kiểm tra:
+netlify --version
+
+C4. Đăng nhập:
+netlify login
+Trình duyệt mở ra -> Allow.
+
+============================================================
+PHẦN D — DEPLOY V20 VÀO ĐÚNG SITE CŨ
+============================================================
+
+D1. Giải nén ABA_Portal_Cloud_Sync_v20.zip.
+Bạn phải thấy:
+- public/
+- netlify/
+- netlify.toml
+- SUPABASE_SETUP.sql
+- HUONG_DAN_V20.txt
+
+D2. Mở PowerShell/CMD tại thư mục ABA_Portal_Cloud_Sync_v20.
+Ví dụ:
+cd "C:\Users\TênBạn\Downloads\ABA_Portal_Cloud_Sync_v20"
+
+D3. Link với site Netlify hiện tại:
+netlify link
+
+Chọn:
+"Use current git remote origin" nếu có repo,
+hoặc chọn site hiện có và chọn:
+hethongquanlylophocaba.netlify.app
+
+D4. Đặt Environment Variables.
+Thay VALUE bằng giá trị thật:
+
+netlify env:set SUPABASE_URL "https://xxxxx.supabase.co"
+netlify env:set SUPABASE_PUBLISHABLE_KEY "sb_publishable_xxxxx"
+netlify env:set ONESIGNAL_APP_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+netlify env:set ONESIGNAL_APP_API_KEY "API_KEY_ONESIGNAL_CUA_BAN" --secret
+netlify env:set ABA_PUSH_ADMIN_SECRET "TU_DAT_MOT_MAT_KHAU_GUI_PUSH_RAT_KHO_DOAN" --secret
+
+Nếu lệnh --secret không được bản CLI của bạn hỗ trợ, bỏ --secret và đặt Secret trong
+Netlify > Project configuration > Environment variables.
+
+D5. Deploy:
+netlify deploy --prod
+
+Netlify đọc netlify.toml:
+- publish = public
+- functions = netlify/functions
+
+D6. Sau deploy kiểm tra 4 URL:
+https://hethongquanlylophocaba.netlify.app/
+https://hethongquanlylophocaba.netlify.app/admin.html
+https://hethongquanlylophocaba.netlify.app/OneSignalSDKWorker.js
+https://hethongquanlylophocaba.netlify.app/.netlify/functions/supabase-config
+
+URL supabase-config phải trả JSON có configured=true.
+
+============================================================
+PHẦN E — KHỞI TẠO DỮ LIỆU CŨ LÊN CLOUD
+============================================================
+
+RẤT QUAN TRỌNG:
+1. Trên đúng máy Admin đang có lịch/dữ liệu hiện tại, mở:
+   /admin.html
+2. Hệ thống hiện hộp "Đăng nhập Cloud Sync".
+3. Đăng nhập tài khoản Supabase.
+4. Vì bảng Cloud mới đang rỗng, ADMIN sẽ tự lấy dữ liệu localStorage hiện có trên máy đó
+   và đẩy lên Supabase lần đầu.
+5. Chờ badge trên đầu trang chuyển thành:
+   "Realtime Online" hoặc "Đã đồng bộ".
+
+Sau bước này, KHÔNG mở một máy giáo viên có dữ liệu cũ để khởi tạo trước Admin.
+
+============================================================
+PHẦN F — CÀI TRÊN MÁY/ĐIỆN THOẠI GIÁO VIÊN
+============================================================
+
+F1. Giáo viên mở:
+https://hethongquanlylophocaba.netlify.app/
+
+F2. Đăng nhập Cloud Sync bằng tài khoản Supabase được cấp.
+Supabase lưu session nên lần sau thường không phải đăng nhập lại.
+
+F3. Chọn đúng:
+Giáo viên -> tên giáo viên.
+
+F4. Hệ thống tải dữ liệu Supabase về ngay.
+Nếu Admin sửa lịch trên máy khác, trang giáo viên đang mở sẽ cập nhật qua Realtime.
+
+F5. Bấm "Bật thông báo Push".
+Chọn Allow/Cho phép.
+Thiết bị sẽ được OneSignal gắn tag:
+- role = teacher
+- teacher = tên giáo viên
+
+Quản lý chọn vai trò Quản lý và bật Push tương tự.
+
+iPhone:
+Nếu Safari yêu cầu Web Push chạy từ web app cài trên màn hình chính:
+- Safari -> Share -> Add to Home Screen
+- Mở Portal từ icon vừa thêm
+- Bấm Bật thông báo Push.
+
+============================================================
+PHẦN G — ADMIN GỬI PUSH
+============================================================
+
+G1. Vào admin.html -> Thông báo.
+G2. Ở "Mã gửi Push của Admin", nhập đúng ABA_PUSH_ADMIN_SECRET đã đặt trên Netlify.
+Trình duyệt Admin lưu mã này local trên máy Admin.
+G3. Chọn đối tượng:
+- Toàn hệ thống
+- Tất cả giáo viên
+- Quản lý
+- Admin
+- Một giáo viên
+G4. Nhập tiêu đề + nội dung -> Gửi.
+
+Nếu đúng:
+"Đã gửi Push ra điện thoại"
+
+Người nhận có thể nhận notification dù website đang đóng, miễn thiết bị/browser cho phép Web Push.
+
+Ngoài ra v20 tự gửi Push cho các sự kiện:
+- Giáo viên xác nhận -> Quản lý.
+- Quản lý xác nhận -> đúng giáo viên.
+- Quản lý cho nghỉ/khôi phục -> đúng giáo viên.
+- Giáo viên phản hồi Quản lý -> Quản lý.
+- Phản hồi Hệ thống -> Admin.
+- Admin thêm/sửa/xóa lịch -> đúng giáo viên.
+- Admin cập nhật Wi‑Fi -> giáo viên.
+
+============================================================
+PHẦN H — TEST ĐỒNG BỘ
+============================================================
+
+TEST 1 — Realtime:
+- PC: mở admin.html.
+- Điện thoại: mở index.html.
+- Đăng nhập Cloud trên cả hai.
+- Admin sửa một buổi tháng hiện tại.
+- Điện thoại đang mở phải thấy dữ liệu đổi mà không cần nhập lại.
+
+TEST 2 — Xác nhận:
+- Giáo viên xác nhận một buổi.
+- Admin/Quản lý ở thiết bị khác phải nhận trạng thái đồng bộ.
+- Quản lý bật Push sẽ nhận thông báo.
+
+TEST 3 — Website đóng:
+- Điện thoại bật Push.
+- Đóng tab/browser.
+- Admin gửi một thông báo thử cho đúng giáo viên.
+- Notification phải xuất hiện ở hệ điều hành.
+
+TEST 4 — Lịch sử tháng:
+- Chuyển sang tháng cũ.
+- Dữ liệu tháng cũ vẫn nằm trong Cloud state và không bị lịch tháng mới thay thế.
+
+============================================================
+PHẦN I — FREE CÓ ĐỦ KHÔNG?
+============================================================
+
+Với một trung tâm nhỏ, mức Free hiện tại thường dư:
+- Supabase Free: database 500 MB, 50.000 MAU, 2 triệu Realtime messages/tháng,
+  200 kết nối Realtime đồng thời.
+- OneSignal Free: Web Push hỗ trợ tối đa 10.000 người nhận trong một lần gửi.
+- Netlify Free có quota/credits hàng tháng; Functions dùng cho cấu hình và Push.
+
+Lưu ý:
+- Supabase Free có thể pause project sau thời gian không hoạt động theo chính sách hiện hành.
+- Nếu vượt quota thì dịch vụ có thể yêu cầu nâng cấp; app không tự phát sinh phí nếu bạn không nâng cấp.
+
+============================================================
+PHẦN J — BẢO MẬT
+============================================================
+
+1. SUPABASE_PUBLISHABLE_KEY có thể xuất hiện phía browser, vì quyền truy cập được RLS kiểm soát.
+2. TUYỆT ĐỐI không đưa Supabase Secret key/service_role vào HTML.
+3. TUYỆT ĐỐI không đưa OneSignal App API Key vào HTML.
+4. ONESIGNAL_APP_API_KEY và ABA_PUSH_ADMIN_SECRET chỉ để trong Netlify Environment Variables.
+5. Bảng aba_app_state chỉ cho role "authenticated" đọc/ghi; anon bị revoke.
+6. Nên tắt public signup trong Supabase và chỉ tự tạo/invite user nội bộ.
+
+LƯU Ý QUYỀN HẠN:
+Để giữ đúng giao diện hiện tại, mọi tài khoản Supabase đã đăng nhập dùng chung một state
+và quyền Giáo viên/Quản lý vẫn được kiểm soát ở giao diện app. Đây phù hợp cho nhóm nội bộ tin cậy.
+Nếu cần bảo mật cấp doanh nghiệp (GV không thể giả vai QL bằng devtools), cần tách dữ liệu thành nhiều
+bảng + RLS theo từng role/profile; có thể nâng cấp tiếp mà vẫn dùng Free.
+
+============================================================
+XỬ LÝ LỖI NHANH
+============================================================
+
+1. Badge "Lỗi Cloud":
+- kiểm tra /.netlify/functions/supabase-config
+- kiểm tra 2 env SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY
+- deploy lại sau khi đổi env.
+
+2. Đăng nhập Supabase lỗi:
+- Authentication > Users kiểm tra user tồn tại.
+- kiểm tra password.
+- nếu dùng invite, user phải hoàn thành invite.
+
+3. Không Realtime:
+- SQL Editor chạy:
+  select * from pg_publication_tables where pubname='supabase_realtime';
+- phải có public.aba_app_state.
+- nếu thiếu:
+  alter publication supabase_realtime add table public.aba_app_state;
+
+4. Push không tới:
+- mở /OneSignalSDKWorker.js xem có tải được không.
+- OneSignal > Audience > Subscriptions phải thấy thiết bị.
+- kiểm tra ONESIGNAL_APP_ID / ONESIGNAL_APP_API_KEY.
+- kiểm tra trình duyệt đã Allow notifications.
+
+5. Admin gửi Push báo "Mã không đúng":
+- ABA_PUSH_ADMIN_SECRET trên Netlify và mã nhập trong Admin phải giống hệt.
+- sau khi sửa env: netlify deploy --prod lại.
+
+6. Supabase Free pause:
+- mở Supabase Dashboard và Restore project nếu Dashboard cho phép.
