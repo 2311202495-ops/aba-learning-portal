@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>Quản Trị Lịch Dạy | Premium Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<style>
+:root{
+  --bg:#f7f8fa;--card:#fff;--ink:#111318;--muted:#747b85;--line:#e8eaee;--soft:#f3f4f6;
+  --green:#16834a;--greenbg:#eefaf3;--blue:#111318;--bluebg:#f1f2f4;--red:#b42318;--redbg:#fff1f0;
+  --shadow:0 12px 32px rgba(20,24,32,.055);--radius:22px
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.sidebar{height:100vh;position:sticky;top:0;background:#fff;color:var(--ink);padding:22px 16px;border-right:1px solid var(--line);z-index:30}
+.brand{display:flex;align-items:center;gap:12px;padding:3px 8px 26px;font-weight:800}.mark{width:42px;height:42px;border-radius:14px;background:#111318;color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(17,19,24,.13)}
+.brand small{display:block;color:#9aa0aa;font-size:9px;text-transform:uppercase;letter-spacing:.7px}.brand b{font-size:14px;letter-spacing:-.25px}
+.nav{display:grid;gap:6px}.nav button{width:100%;border:0;background:transparent;color:#737983;border-radius:13px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;transition:.18s}
+.nav button:hover{background:#f5f6f8;color:#111318}.nav button.active{background:#111318;color:#fff;box-shadow:0 8px 18px rgba(17,19,24,.10)}
+.sidefoot{position:absolute;left:16px;right:16px;bottom:18px}.sidefoot a{display:flex;align-items:center;justify-content:center;gap:8px;background:#f7f8fa;border:1px solid var(--line);color:#111318;text-decoration:none;padding:10px;border-radius:12px;font-size:9px;font-weight:700}
+.main{min-width:0}.topbar{height:72px;position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.topbar small{font-size:9px;color:#8b919b}.topbar h1{font-size:18px;margin:2px 0 0;letter-spacing:-.35px}
+.btn,.iconbtn{border:0;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:750;transition:.18s}.iconbtn{width:42px;height:42px;background:#f4f5f7;color:#24272d}
+.btn{padding:10px 14px;font-size:10px}.btn.primary{background:#111318;color:#fff}.btn.secondary{background:#fff;border:1px solid var(--line);color:#111318}.btn.blue{background:#111318;color:#fff}.btn.green{background:var(--greenbg);color:var(--green)}.btn.red{background:var(--redbg);color:var(--red)}
+.content{padding:28px 30px 44px;max-width:1480px;margin:auto}.screen{display:none}.screen.active{display:block}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:20px}.eyebrow{font-size:9px;color:#9aa0aa;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.hero h2{font-size:30px;letter-spacing:-1px;margin:6px 0}.hero p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.monthlabel{min-width:160px;text-align:center;font-size:12px;font-weight:800}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.cardhead{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.cardtitle{font-size:13px;font-weight:800}.cardsub{font-size:9px;color:var(--muted);margin-top:4px}.cardbody{padding:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.stat span{font-size:9px;color:var(--muted);font-weight:700}.stat strong{display:block;font-size:26px;margin-top:7px;letter-spacing:-.8px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:860px}
+th{font-size:9px;color:#737983;text-align:left;padding:12px 14px;background:#fafbfc;border-bottom:1px solid var(--line);font-weight:800}
+td{font-size:11px;padding:13px 14px;border-bottom:1px solid #eef0f2;vertical-align:middle}tr:last-child td{border-bottom:0}
+.badge{display:inline-flex;border-radius:999px;padding:6px 8px;font-size:8px;font-weight:750;background:#f2f3f5;color:#626a76}.badge.ok{background:var(--greenbg);color:var(--green)}
+.rowactions{display:flex;gap:6px}.small{width:31px;height:31px;border:0;border-radius:9px;background:#f2f3f5;display:grid;place-items:center}.small.red{background:var(--redbg);color:var(--red)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.input,.select,.textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;font-size:10px;outline:none}.textarea{min-height:120px;resize:vertical}
+.field label{display:block;font-size:9px;font-weight:750;margin-bottom:6px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+.drop{border:1.5px dashed #c8ccd2;border-radius:18px;padding:34px;text-align:center;background:#fafbfc}.drop.drag{border-color:#111318;background:#f4f5f7}.dropicon{width:52px;height:52px;border-radius:17px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 11px}.drop b{font-size:12px}.drop p{font-size:9px;color:var(--muted)}
+.note{font-size:9px;line-height:1.75;color:#56606c;background:#fafbfc;border:1px solid var(--line);padding:13px;border-radius:14px}
+.feed{display:grid}.ticket,.notice{padding:16px 20px;border-bottom:1px solid #eef0f2}.ticket:last-child,.notice:last-child{border-bottom:0}.tickettop,.noticetop{display:flex;justify-content:space-between;gap:10px}.ticket b,.notice b{font-size:11px}.ticket p,.notice p{font-size:10px;color:var(--muted);line-height:1.6;margin:5px 0}.meta{font-size:8px;color:#9aa0aa}
+.tag{display:inline-flex;border-radius:999px;padding:5px 8px;background:#f2f3f5;font-size:8px;font-weight:750}.tag.ok{background:var(--greenbg);color:var(--green)}
+.wifibox{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fafbfc}.preview b{font-size:11px}.preview div{font-size:9px;color:var(--muted);margin-top:4px}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(17,19,24,.42);backdrop-filter:blur(8px);display:grid;place-items:center;padding:18px}.modalcard{width:min(1050px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:26px;box-shadow:0 30px 100px rgba(0,0,0,.22)}
+.modalhead,.modalfoot{padding:16px 18px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;z-index:2}.modalhead{top:0;border-bottom:1px solid var(--line)}.modalfoot{bottom:0;border-top:1px solid var(--line)}.modalbody{padding:18px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.mini{background:#f4f5f7;border-radius:12px;padding:10px}.mini b{display:block;font-size:16px}.mini span{font-size:8px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:24px;z-index:200;transform:translate(-50%,18px);opacity:0;background:#111318;color:white;padding:11px 14px;border-radius:13px;font-size:10px;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1020px){.shell{grid-template-columns:78px minmax(0,1fr)}.brand>div:last-child,.nav span,.sidefoot span{display:none}.brand,.nav button,.sidefoot a{justify-content:center}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.sidebar{padding:18px 10px}}
+@media(max-width:700px){.shell{display:block}.sidebar{display:none}.topbar{height:62px;padding:0 13px}.content{padding:16px 13px 30px}.hero{display:block}.hero h2{font-size:24px}.tools{margin-top:14px}.grid,.wifibox,.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.summary{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}
+
+/* V8 — larger text + multi-floor Wi-Fi editor */
+.brand small{font-size:11px}.brand b{font-size:17px}
+.nav button{font-size:14px;padding:14px}.topbar small{font-size:11px}.topbar h1{font-size:22px}
+.btn{font-size:13px;padding:11px 15px}.eyebrow{font-size:11px}.hero h2{font-size:34px}.hero p{font-size:14px}.monthlabel{font-size:15px}
+.cardtitle{font-size:16px}.cardsub{font-size:12px}.stat span{font-size:11px}.stat strong{font-size:29px}
+th{font-size:12px;padding:13px 14px}td{font-size:13px;padding:14px}
+.badge,.tag{font-size:10px}.input,.select,.textarea{font-size:13px}.field label{font-size:12px}
+.drop b{font-size:15px}.drop p{font-size:12px}.note{font-size:12px}
+.ticket b,.notice b{font-size:14px}.ticket p,.notice p{font-size:13px}.meta{font-size:10px}
+.wifi-editor{display:grid;gap:12px}.wifi-edit-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fafbfc}
+.wifi-edit-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.wifi-edit-head b{font-size:14px}
+.wifi-fields{display:grid;grid-template-columns:160px 1fr 1fr 130px;gap:10px}.wifi-fields .wide{grid-column:1/-1}
+.wifi-help{font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px}
+@media(max-width:900px){.wifi-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.hero h2{font-size:28px}.hero p{font-size:13px}.wifi-fields{grid-template-columns:1fr}.wifi-fields .wide{grid-column:auto}}
+
+/* --- ADD-ON V12: tổng hợp buổi dạy (không thay CSS cốt lõi) --- */
+.teacher-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.teacher-summary-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.teacher-summary-card span{font-size:11px;color:var(--muted);font-weight:700}.teacher-summary-card strong{display:block;font-size:26px;margin-top:6px}
+.off-badge{display:inline-flex;border-radius:999px;padding:6px 8px;background:#fff1f0;color:#b42318;font-size:10px;font-weight:800}
+.reason-text{font-size:11px;color:#b42318;font-weight:700}
+@media(max-width:700px){.teacher-summary{grid-template-columns:1fr}}
+
+
+/* --- V13: tăng khả năng đọc, không thay logic admin --- */
+#schedule th,#schedule td{font-size:14px}
+#schedule th{padding:14px 15px}
+#schedule td{padding:15px}
+#schedule .cardtitle{font-size:18px}
+#schedule .cardsub{font-size:13px}
+#schedule .badge,#schedule .off-badge{font-size:11px}
+#schedule .reason-text{font-size:13px}
+.teacher-summary-card span{font-size:13px}
+.teacher-summary-card strong{font-size:30px}
+
+
+/* V14 — cài đặt đơn giá lương Quản lý */
+.manager-pay-grid{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:16px}
+.manager-pay-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.manager-pay-stat{background:#f7f8fa;border:1px solid var(--line);border-radius:14px;padding:14px}
+.manager-pay-stat span{font-size:11px;color:var(--muted);font-weight:700}.manager-pay-stat strong{display:block;font-size:24px;margin-top:6px}
+@media(max-width:850px){.manager-pay-grid{grid-template-columns:1fr}.manager-pay-preview{grid-template-columns:1fr}}
+
+
+/* V18 — chỉnh lịch riêng theo tháng */
+.schedule-actions{display:flex;gap:6px;flex-wrap:wrap}
+.schedule-actions .small{width:auto;padding:0 9px;gap:5px;font-size:10px}
+.small.edit{background:#eef2ff;color:#334155}.small.delete{background:#fff1f0;color:#b42318}
+.schedule-edit-card{width:min(620px,100%);background:#fff;border-radius:24px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.24)}
+.schedule-edit-card h3{font-size:22px;margin:0 0 5px}.schedule-edit-card p{font-size:12px;color:var(--muted);margin:0 0 15px;line-height:1.6}
+.schedule-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.schedule-edit-grid .wide{grid-column:1/-1}
+.schedule-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.native-notify-on{background:var(--greenbg)!important;color:var(--green)!important}
+@media(max-width:700px){.schedule-edit-grid{grid-template-columns:1fr}.schedule-edit-grid .wide{grid-column:auto}}
+
+
+/* V20 — Supabase Cloud Sync */
+.cloud-auth-modal{position:fixed;inset:0;z-index:500;background:rgba(17,19,24,.64);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px}
+.cloud-auth-card{width:min(470px,100%);background:#fff;border-radius:26px;padding:26px;box-shadow:0 30px 100px rgba(0,0,0,.28)}
+.cloud-auth-card h2{font-size:25px;margin:0;letter-spacing:-.7px}
+.cloud-auth-card p{font-size:12px;color:var(--muted);line-height:1.65;margin:8px 0 18px}
+.cloud-auth-fields{display:grid;gap:10px}.cloud-auth-status{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+.cloud-sync-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:800;color:#6b7280}
+.cloud-sync-badge.online{background:#eefaf3;color:#16834a;border-color:#d6f0df}
+.cloud-sync-badge.syncing{background:#fff8e8;color:#9a6700;border-color:#f2dfaa}
+.cloud-sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="mark"><i data-lucide="shield-check" width="18"></i></div><div><small>ABA Learning</small><b>Portal Quản Trị Lịch Dạy</b></div></div>
+  <nav class="nav">
+    <button class="active" data-screen="dashboard" onclick="showScreen('dashboard',this)"><i data-lucide="layout-dashboard" width="15"></i><span>Tổng quan</span></button>
+    <button data-screen="schedule" onclick="showScreen('schedule',this)"><i data-lucide="calendar-days" width="15"></i><span>Lịch tháng</span></button>
+    <button data-screen="managerpay" onclick="showScreen('managerpay',this)"><i data-lucide="banknote" width="15"></i><span>Lương Quản lý</span></button>
+    <button data-screen="import" onclick="showScreen('import',this)"><i data-lucide="file-spreadsheet" width="15"></i><span>Nhập Excel</span></button>
+    <button data-screen="notifications" onclick="showScreen('notifications',this)"><i data-lucide="bell-ring" width="15"></i><span>Thông báo</span></button>
+    <button data-screen="feedback" onclick="showScreen('feedback',this)"><i data-lucide="message-square-text" width="15"></i><span>Phản hồi</span></button>
+    <button data-screen="wifi" onclick="showScreen('wifi',this)"><i data-lucide="wifi" width="15"></i><span>Wi‑Fi</span></button>
+  </nav>
+  <div class="sidefoot"><a href="./index.html"><i data-lucide="external-link" width="13"></i><span>Mở Portal</span></a></div>
+</aside>
+
+<main class="main">
+<header class="topbar"><div><small>Portal Xác Nhận Lịch Dạy</small><h1 id="pageTitle">Tổng quan</h1></div><div class="tools"><span class="cloud-sync-badge" id="cloudSyncBadge" title="Trạng thái đồng bộ"><span class="cloud-sync-dot"></span><span id="cloudSyncText">Cloud…</span></span><button class="btn secondary" id="adminNativeNotifyBtn" onclick="enableAdminNativeNotifications()"><i data-lucide="bell-ring" width="13"></i><span>Bật thông báo</span></button><a class="btn primary" href="./index.html" style="text-decoration:none"><i data-lucide="monitor-up" width="13"></i>Mở Portal</a></div></header>
+<div class="content">
+
+<section class="screen active" id="dashboard">
+  <div class="hero"><div><div class="eyebrow">Dashboard</div><h2>Tổng quan tháng</h2><p>Theo dõi lịch, xác nhận, phản hồi và thông báo trong một nơi.</p></div><div class="tools"><button class="iconbtn" onclick="changeMonth(-1)"><i data-lucide="chevron-left" width="16"></i></button><div class="monthlabel" id="dashMonth"></div><button class="iconbtn" onclick="changeMonth(1)"><i data-lucide="chevron-right" width="16"></i></button><button class="btn secondary" onclick="goToday()">Tháng này</button></div></div>
+  <div class="stats"><div class="stat"><span>Tổng buổi</span><strong id="stTotal">0</strong></div><div class="stat"><span>GV đã xác nhận</span><strong id="stTeacher">0</strong></div><div class="stat"><span>QL đã xác nhận</span><strong id="stManager">0</strong></div><div class="stat"><span>Phản hồi mới</span><strong id="stFeedback">0</strong></div></div>
+  <div class="grid"><div class="card"><div class="cardhead"><div><div class="cardtitle">Lịch gần nhất</div><div class="cardsub">Các buổi trong tháng đang xem</div></div><button class="btn secondary" onclick="showScreen('schedule')">Xem đầy đủ</button></div><div class="tablewrap" id="dashTable"></div></div><div class="card"><div class="cardhead"><div><div class="cardtitle">Phản hồi mới</div><div class="cardsub">Ưu tiên xử lý</div></div></div><div class="feed" id="dashFeedback"></div></div></div>
+</section>
+
+<section class="screen" id="schedule">
+  <div class="hero"><div><div class="eyebrow">Monthly Schedule</div><h2>Lịch đầy đủ theo tháng</h2><p>Từ ngày đầu tháng đến ngày cuối tháng theo thứ tự.</p></div><div class="tools"><button class="iconbtn" onclick="changeMonth(-1)"><i data-lucide="chevron-left" width="16"></i></button><div class="monthlabel" id="monthLabel"></div><button class="iconbtn" onclick="changeMonth(1)"><i data-lucide="chevron-right" width="16"></i></button><button class="btn secondary" onclick="goToday()">Tháng này</button></div></div>
+  <div class="teacher-summary">
+    <div class="teacher-summary-card"><span>Tổng buổi đã dạy</span><strong id="adminTaughtTotal">0</strong></div>
+    <div class="teacher-summary-card"><span>Tổng buổi nghỉ</span><strong id="adminOffTotal">0</strong></div>
+    <div class="teacher-summary-card"><span>Giáo viên có lịch</span><strong id="adminTeacherTotal">0</strong></div>
+  </div>
+  <div class="card" style="margin-bottom:14px"><div class="cardhead"><div><div class="cardtitle">Tổng hợp cuối tháng theo giáo viên</div><div class="cardsub">1 ca = 1 buổi; chỉ buổi Quản lý xác nhận mới tính là đã dạy</div></div></div><div class="tablewrap" id="teacherMonthlySummary"></div></div>
+  <div class="card"><div class="cardhead"><div><div class="cardtitle">Danh sách buổi học</div><div class="cardsub" id="scheduleCount"></div></div><div class="tools"><button class="btn primary" onclick="openScheduleEditor()"><i data-lucide="plus" width="13"></i>Thêm buổi tháng này</button><button class="btn secondary" onclick="exportMonth()"><i data-lucide="sheet" width="13"></i>Xuất phiếu ký Excel</button></div></div><div class="tablewrap" id="scheduleTable"></div></div>
+</section>
+
+<section class="screen" id="managerpay">
+  <div class="hero">
+    <div><div class="eyebrow">Manager Payroll</div><h2>Lương Quản lý</h2><p>Nhập một đơn giá cho mỗi ca. Một ngày + một ca chỉ tính một lần dù có nhiều lớp.</p></div>
+    <div class="tools">
+      <button class="iconbtn" onclick="changeMonth(-1)"><i data-lucide="chevron-left" width="16"></i></button>
+      <div class="monthlabel" id="managerPayMonth"></div>
+      <button class="iconbtn" onclick="changeMonth(1)"><i data-lucide="chevron-right" width="16"></i></button>
+      <button class="btn secondary" onclick="goToday()">Tháng này</button>
+    </div>
+  </div>
+  <div class="manager-pay-grid">
+    <div class="card">
+      <div class="cardhead"><div><div class="cardtitle">Đơn giá Quản lý / ca</div><div class="cardsub">Dùng chung cho Sáng, Chiều và Tối</div></div></div>
+      <div class="cardbody">
+        <div class="field"><label>Đơn giá mỗi ca (VNĐ)</label><input class="input" id="managerShiftRateInput" type="number" min="0" step="1000" placeholder="VD: 150000"></div>
+        <div style="margin-top:12px"><button class="btn primary" onclick="saveManagerShiftRate()"><i data-lucide="save" width="13"></i>Lưu đơn giá</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cardhead"><div><div class="cardtitle">Tạm tính tháng đang xem</div><div class="cardsub">Tự động lấy các ca có xác nhận đủ</div></div></div>
+      <div class="cardbody">
+        <div class="manager-pay-preview">
+          <div class="manager-pay-stat"><span>Số ca hợp lệ</span><strong id="adminManagerShiftCount">0</strong></div>
+          <div class="manager-pay-stat"><span>Đơn giá / ca</span><strong id="adminManagerShiftRate">0 ₫</strong></div>
+          <div class="manager-pay-stat"><span>Lương Quản lý</span><strong id="adminManagerSalary">0 ₫</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="import">
+  <div class="hero"><div><div class="eyebrow">Excel Import</div><h2>Nhập khung lịch theo thứ</h2><p>Giữ nguyên file Thứ – Ca – Lớp/Giảng viên – Phòng.</p></div><button class="btn secondary" onclick="downloadTemplate()">Tải file mẫu</button></div>
+  <div class="grid"><div class="card"><div class="cardhead"><div><div class="cardtitle">Tải Excel lên</div><div class="cardsub">.xlsx / .xls</div></div></div><div class="cardbody"><div class="drop" id="drop"><div class="dropicon"><i data-lucide="cloud-upload" width="20"></i></div><b>Kéo file Excel vào đây</b><p>Hoặc chọn file từ máy tính</p><input id="excel" type="file" accept=".xlsx,.xls" hidden onchange="readExcel(this.files[0])"><button class="btn primary" onclick="excel.click()">Chọn file Excel</button></div></div></div><div class="card"><div class="cardhead"><div><div class="cardtitle">Cách hoạt động</div><div class="cardsub">Tự trải lịch theo ngày thực tế</div></div></div><div class="cardbody"><div class="note">Excel chỉ cần quy định lịch theo thứ. Hệ thống sẽ tự sinh toàn bộ ngày tương ứng theo từng tháng. Khi thay lịch từ một ngày mới, lịch cũ trước ngày đó vẫn được giữ lại để tra cứu.</div></div></div></div>
+</section>
+
+<section class="screen" id="notifications">
+  <div class="hero"><div><div class="eyebrow">Notifications</div><h2>Tạo thông báo</h2><p>Gửi toàn hệ thống hoặc đúng một nhóm / một giáo viên.</p></div></div>
+  <div class="grid"><div class="card"><div class="cardhead"><div><div class="cardtitle">Thông báo mới</div><div class="cardsub">Chọn chính xác đối tượng nhận</div></div></div><div class="cardbody"><div class="formgrid">
+    <div class="field"><label>Đối tượng nhận</label><select class="select" id="ntTarget" onchange="toggleTeacherTarget()"><option value="all">Toàn hệ thống</option><option value="teachers">Tất cả giáo viên</option><option value="managers">Quản lý</option><option value="admins">Admin</option><option value="teacher">Một giáo viên</option></select></div>
+    <div class="field hidden" id="ntTeacherField"><label>Giáo viên</label><select class="select" id="ntTeacher"></select></div>
+    <div class="field full"><label>Tiêu đề</label><input class="input" id="ntTitle" placeholder="VD: Thay đổi lịch dạy tuần tới"></div>
+    <div class="field full"><label>Nội dung</label><textarea class="textarea" id="ntMessage" placeholder="Nhập nội dung thông báo..."></textarea></div>
+    <div class="field full"><label>Mã gửi Push của Admin</label><input class="input" id="pushAdminSecret" type="password" placeholder="Mã này trùng với ABA_PUSH_ADMIN_SECRET trên Netlify" oninput="savePushAdminSecret()"><div class="cardsub" style="margin-top:6px">Chỉ lưu trên trình duyệt máy Admin; API key OneSignal không nằm trong HTML.</div></div>
+  </div><div style="margin-top:10px"><button class="btn primary" onclick="createNotification()"><i data-lucide="send" width="13"></i>Gửi thông báo</button></div></div></div>
+  <div class="card"><div class="cardhead"><div><div class="cardtitle">Thông báo gần đây</div><div class="cardsub">Lịch sử phát thông báo</div></div></div><div class="feed" id="adminNoticeList"></div></div></div>
+</section>
+
+<section class="screen" id="feedback">
+  <div class="hero"><div><div class="eyebrow">Feedback Center</div><h2>Phản hồi giáo viên</h2><p>Hệ thống lưu toàn bộ phản hồi; phản hồi gửi Quản lý được đánh dấu riêng.</p></div></div>
+  <div class="card"><div id="feedbackList"></div></div>
+</section>
+
+<section class="screen" id="wifi">
+  <div class="hero">
+    <div><div class="eyebrow">Teacher Wi‑Fi</div><h2>Wi‑Fi theo từng tầng</h2><p>Mỗi tầng có thể dùng một mạng và mật khẩu khác nhau. Portal giáo viên sẽ tự tạo QR để quét kết nối.</p></div>
+    <button class="btn secondary" onclick="addWifiRow()"><i data-lucide="plus" width="13"></i>Thêm tầng / mạng</button>
+  </div>
+  <div class="card">
+    <div class="cardhead"><div><div class="cardtitle">Danh sách Wi‑Fi</div><div class="cardsub">Tầng · SSID · Mật khẩu · Kiểu bảo mật</div></div></div>
+    <div class="cardbody">
+      <div class="wifi-editor" id="wifiEditor"></div>
+      <div class="wifi-help">QR được tạo theo chuẩn Wi‑Fi. Giáo viên mở Camera trên điện thoại, quét mã và chọn kết nối. Với mạng không mật khẩu, chọn bảo mật “Mở”.</div>
+      <div style="margin-top:14px"><button class="btn primary" onclick="saveWifi()"><i data-lucide="save" width="13"></i>Lưu tất cả Wi‑Fi</button></div>
+    </div>
+  </div>
+</section>
+</div>
+</main>
+</div>
+
+<div class="modal hidden" id="scheduleEditModal">
+  <div class="schedule-edit-card">
+    <h3 id="scheduleEditTitle">Thêm buổi dạy</h3>
+    <p id="scheduleEditHint">Buổi này chỉ thuộc tháng/ngày đang chọn và không làm thay đổi các tháng khác.</p>
+    <input type="hidden" id="scheduleEditId">
+    <input type="hidden" id="scheduleEditSource">
+    <div class="schedule-edit-grid">
+      <div class="field"><label>Ngày</label><input class="input" type="date" id="scheduleEditDate"></div>
+      <div class="field"><label>Ca</label><select class="select" id="scheduleEditShift"><option>Sáng</option><option>Chiều</option><option>Tối</option></select></div>
+      <div class="field"><label>Giáo viên</label><input class="input" id="scheduleEditTeacher" placeholder="VD: Cô Liên"></div>
+      <div class="field"><label>Phòng</label><input class="input" id="scheduleEditRoom" placeholder="VD: 301"></div>
+      <div class="field wide"><label>Ghi chú</label><input class="input" id="scheduleEditDetail" placeholder="Ghi chú nếu có"></div>
+    </div>
+    <div class="schedule-edit-actions">
+      <button class="btn secondary" onclick="closeScheduleEditor()">Hủy</button>
+      <button class="btn primary" onclick="saveScheduleEditor()">Lưu lịch</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="previewModal">
+  <div class="modalcard"><div class="modalhead"><div><div class="cardtitle">Xem trước Excel</div><div class="cardsub" id="previewName"></div></div><button class="iconbtn" onclick="closePreview()"><i data-lucide="x" width="15"></i></button></div><div class="modalbody">
+    <div class="summary"><div class="mini"><b id="pRows">0</b><span>Dòng hợp lệ</span></div><div class="mini"><b id="pDup">0</b><span>Trùng</span></div><div class="mini"><b id="pConflict">0</b><span>Cảnh báo</span></div><div class="mini"><b id="pErr">0</b><span>Lỗi</span></div></div>
+    <div class="tools" style="margin-bottom:10px"><div class="field"><label>Áp dụng từ ngày</label><input class="input" type="date" id="effectiveDate"></div><div class="field"><label>Chế độ</label><select class="select" id="importMode"><option value="replace">Thay lịch từ ngày này trở đi</option><option value="merge">Gộp thêm</option></select></div></div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Thứ</th><th>Ca</th><th>Giảng viên</th><th>Phòng</th><th>Kiểm tra</th></tr></thead><tbody id="previewBody"></tbody></table></div>
+  </div><div class="modalfoot"><button class="btn secondary" onclick="closePreview()">Hủy</button><button class="btn primary" onclick="commitImport()">Áp dụng lịch</button></div></div>
+</div>
+<div class="cloud-auth-modal hidden" id="cloudAuthModal">
+  <div class="cloud-auth-card">
+    <div class="modalmark"><i data-lucide="cloud" width="21"></i></div>
+    <h2>Đăng nhập Cloud Sync</h2>
+    <p>Đăng nhập một lần trên thiết bị này để lịch, xác nhận, nghỉ lớp, phản hồi, Wi‑Fi, lương và thông báo được đồng bộ giữa tất cả thiết bị.</p>
+    <div class="cloud-auth-fields">
+      <div class="field"><label>Email Supabase</label><input class="input" id="cloudEmail" type="email" autocomplete="username" placeholder="portal@trungtam.com"></div>
+      <div class="field"><label>Mật khẩu</label><input class="input" id="cloudPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="btn primary" style="width:100%" onclick="cloudLogin()"><i data-lucide="log-in" width="13"></i>Đăng nhập & Đồng bộ</button>
+    </div>
+    <div class="cloud-auth-status" id="cloudAuthStatus">Đang kết nối Supabase…</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE='aba_schedule_portal_v5',OLD='aba_schedule_portal_v4';
+const DAY_INDEX={'Thứ 2':0,'Thứ 3':1,'Thứ 4':2,'Thứ 5':3,'Thứ 6':4,'Thứ 7':5,'Chủ nhật':6};
+const SHIFT_ORDER={'Sáng':0,'Chiều':1,'Tối':2};
+const STARTER=[['Thứ 2','Tối','Cô Liên','Tầng 1'],['Thứ 2','Tối','Cô Huyền','301'],['Thứ 3','Tối','Cô Thu','401'],['Thứ 4','Tối','Cô Liên','Tầng 1'],['Thứ 5','Tối','Cô Huyền','301'],['Thứ 6','Tối','Cô Thu','401'],['Thứ 7','Chiều','Cô Huyền','301'],['Chủ nhật','Sáng','Cô Thuần','Tầng 1']];
+function uid(){return crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(16).slice(2)}
+function isoLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fromISO(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function safe(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function norm(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').trim().replace(/\s+/g,' ').toLowerCase()}
+function pretty(s){return String(s??'').trim().replace(/\s+/g,' ')}
+function viDate(d){return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function monthName(d){return 'Tháng '+(d.getMonth()+1)+' / '+d.getFullYear()}
+function active(t,dateISO){return(!t.validFrom||dateISO>=t.validFrom)&&(!t.validTo||dateISO<=t.validTo)}
+function occKey(t,dateISO){return t.id+'__'+dateISO}
+
+const DAY_NAMES=['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật'];
+function dayFromISO(dateISO){const d=fromISO(dateISO);return DAY_NAMES[(d.getDay()+6)%7]}
+function applyOccurrenceOverride(base,dateISO){
+  const ov=data.monthlyOverrides?.[occKey(base,dateISO)]||{};
+  if(ov.deleted)return null;
+  return {...base,...ov,dateISO,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'template',conf:data.confirmations[occKey(base,dateISO)]||{}};
+}
+function monthlyExactOccurrences(dateISO){
+  return (data.monthlyAdditions||[]).filter(x=>x.dateISO===dateISO).map(x=>({...x,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'monthly',conf:data.confirmations[occKey(x,dateISO)]||{}}));
+}
+function findOccurrence(id,dateISO){
+  const add=(data.monthlyAdditions||[]).find(x=>x.id===id&&x.dateISO===dateISO);
+  if(add)return {...add,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'monthly',conf:data.confirmations[occKey(add,dateISO)]||{}};
+  const base=data.templates.find(x=>x.id===id);
+  return base?applyOccurrenceOverride(base,dateISO):null;
+}
+
+function seed(){return {version:5,settings:{centerName:'ABA Learning Portal',shifts:{'Sáng':'07:30 – 11:30','Chiều':'13:30 – 17:30','Tối':'18:00 – 21:00'},wifis:[{id:uid(),floor:'Tầng 1',ssid:'ABA Teacher',password:'ABA@2026',security:'WPA',note:'Mạng Wi‑Fi dành cho giáo viên'}]},managerShiftRate:0,salaryRates:{},templates:STARTER.map(r=>({id:uid(),day:r[0],shift:r[1],teacher:r[2],room:r[3],detail:'',validFrom:'2020-01-01',validTo:null})),confirmations:{},notifications:[{id:uid(),title:'Chào mừng đến ABA Learning Portal',message:'Hệ thống đã sẵn sàng.',targetType:'all',targetValue:'',createdAt:new Date().toISOString(),type:'system'}],feedback:[],salaryAdjustments:{},cancellations:{},monthlyOverrides:{},monthlyAdditions:[],audit:[]}}
+function migrate(old){const d=seed();d.templates=old.templates||d.templates;d.confirmations=old.confirmations||{};d.notifications=(old.notifications||[]).map(n=>({...n,targetType:n.targetType||'all',targetValue:n.targetValue||''}));d.settings={...d.settings,...(old.settings||{})};d.feedback=old.feedback||[];d.salaryAdjustments=old.salaryAdjustments||{};d.cancellations=old.cancellations||{};d.audit=old.audit||[];return d}
+function ensureExtras(d){d.settings=d.settings||{};d.settings.salaryRates=d.settings.salaryRates||{};d.settings.managerShiftRate=Number(d.settings.managerShiftRate||0);d.salaryAdjustments=d.salaryAdjustments||{};d.cancellations=d.cancellations||{};d.monthlyOverrides=d.monthlyOverrides||{};d.monthlyAdditions=d.monthlyAdditions||[];d.audit=d.audit||[];return d}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||'null');if(x&&x.templates)return ensureExtras(x)}catch(e){}try{const o=JSON.parse(localStorage.getItem(OLD)||'null');if(o&&o.templates){const d=ensureExtras(migrate(o));save(d);return d}}catch(e){}const d=ensureExtras(seed());save(d);return d}
+function save(d){localStorage.setItem(STORE,JSON.stringify(d));queueCloudSave(d)}
+
+/* ===== SUPABASE CLOUD SYNC V20 ===== */
+let ABA_SB=null, ABA_SB_USER=null, ABA_CLOUD_READY=false, ABA_CLOUD_BASE=null, ABA_CLOUD_VERSION=0;
+let ABA_CLOUD_SAVE_TIMER=null, ABA_CLOUD_SAVING=false, ABA_CLOUD_PENDING=null, ABA_CLOUD_CHANNEL=null;
+const ABA_CLOUD_ROW_ID=1;
+
+function deepClone(v){return JSON.parse(JSON.stringify(v??null))}
+function setCloudBadge(state,text){
+  if(!window.cloudSyncBadge||!window.cloudSyncText)return;
+  cloudSyncBadge.classList.remove('online','syncing');
+  if(state)cloudSyncBadge.classList.add(state);
+  cloudSyncText.textContent=text||'Cloud';
+}
+function arrayById(arr){const m=new Map();(arr||[]).forEach(x=>{if(x&&x.id!=null)m.set(String(x.id),deepClone(x))});return m}
+function mergeArrayById(latest,local,base){
+  const out=arrayById(latest), localMap=arrayById(local), baseMap=arrayById(base);
+  for(const id of baseMap.keys())if(!localMap.has(id))out.delete(id);
+  for(const [id,v] of localMap)out.set(id,v);
+  return [...out.values()];
+}
+function mergeMap(latest,local,base){
+  const out={...(latest||{})},l=local||{},b=base||{};
+  for(const k of Object.keys(b))if(!(k in l))delete out[k];
+  for(const [k,v] of Object.entries(l))out[k]=deepClone(v);
+  return out;
+}
+function mergeNestedMap(latest,local,base){
+  const out={...(latest||{})},l=local||{},b=base||{};
+  for(const k of Object.keys(b))if(!(k in l))delete out[k];
+  for(const k of Object.keys(l))out[k]=mergeMap((latest||{})[k],l[k],(base||{})[k]);
+  return out;
+}
+function mergeSettings(latest,local,base){
+  const out={...(latest||{}),...(local||{})};
+  out.wifis=mergeArrayById((latest||{}).wifis,(local||{}).wifis,(base||{}).wifis);
+  out.salaryRates=mergeMap((latest||{}).salaryRates,(local||{}).salaryRates,(base||{}).salaryRates);
+  return out;
+}
+function mergeCloudState(latest,local,base){
+  latest=latest||{};local=local||{};base=base||{};
+  return {
+    ...latest,
+    ...local,
+    settings:mergeSettings(latest.settings,local.settings,base.settings),
+    templates:mergeArrayById(latest.templates,local.templates,base.templates),
+    confirmations:mergeMap(latest.confirmations,local.confirmations,base.confirmations),
+    notifications:mergeArrayById(latest.notifications,local.notifications,base.notifications),
+    feedback:mergeArrayById(latest.feedback,local.feedback,base.feedback),
+    cancellations:mergeMap(latest.cancellations,local.cancellations,base.cancellations),
+    monthlyOverrides:mergeMap(latest.monthlyOverrides,local.monthlyOverrides,base.monthlyOverrides),
+    monthlyAdditions:mergeArrayById(latest.monthlyAdditions,local.monthlyAdditions,base.monthlyAdditions),
+    salaryAdjustments:mergeNestedMap(latest.salaryAdjustments,local.salaryAdjustments,base.salaryAdjustments),
+    audit:mergeArrayById(latest.audit,local.audit,base.audit)
+  };
+}
+function localStateMeaningful(x){return !!(x&&Array.isArray(x.templates)&&x.templates.length)}
+function applyCloudState(remote,version=0){
+  if(!localStateMeaningful(remote))return;
+  ABA_CLOUD_BASE=deepClone(remote);ABA_CLOUD_VERSION=Number(version||0);
+  localStorage.setItem(STORE,JSON.stringify(remote));
+  data=ensureExtras(remote);
+  setCloudBadge('online','Đã đồng bộ');
+  if(typeof render==='function')render();
+  else if(typeof renderAll==='function')renderAll();
+}
+async function getCloudRow(){
+  const {data:row,error}=await ABA_SB.from('aba_app_state').select('id,data,version,updated_at,updated_by').eq('id',ABA_CLOUD_ROW_ID).single();
+  if(error)throw error;
+  return row;
+}
+async function bootstrapCloudIfNeeded(){
+  const row=await getCloudRow();
+  if(localStateMeaningful(row.data)){
+    applyCloudState(row.data,row.version);return;
+  }
+  const local=ensureExtras(load());
+  if(location.pathname.toLowerCase().includes('admin')){
+    setCloudBadge('syncing','Khởi tạo Cloud…');
+    const {data:updated,error}=await ABA_SB.from('aba_app_state')
+      .update({data:local,version:Number(row.version||0)+1,updated_at:new Date().toISOString(),updated_by:ABA_SB_USER.id})
+      .eq('id',ABA_CLOUD_ROW_ID).select('data,version').single();
+    if(error)throw error;
+    applyCloudState(updated.data,updated.version);
+  }else{
+    ABA_CLOUD_BASE=deepClone(local);ABA_CLOUD_VERSION=Number(row.version||0);
+    setCloudBadge('syncing','Chờ Admin khởi tạo');
+    toast('Cloud chưa có dữ liệu. Hãy mở Admin đăng nhập trước để khởi tạo.');
+  }
+}
+async function pushCloudState(localSnapshot){
+  if(!ABA_CLOUD_READY||!ABA_SB||!ABA_SB_USER){ABA_CLOUD_PENDING=deepClone(localSnapshot);return}
+  if(ABA_CLOUD_SAVING){ABA_CLOUD_PENDING=deepClone(localSnapshot);return}
+  ABA_CLOUD_SAVING=true;setCloudBadge('syncing','Đang đồng bộ…');
+  try{
+    const row=await getCloudRow();
+    const latest=ensureExtras(row.data||{});
+    const merged=ensureExtras(mergeCloudState(latest,localSnapshot,ABA_CLOUD_BASE||latest));
+    const {data:updated,error}=await ABA_SB.from('aba_app_state')
+      .update({data:merged,version:Number(row.version||0)+1,updated_at:new Date().toISOString(),updated_by:ABA_SB_USER.id})
+      .eq('id',ABA_CLOUD_ROW_ID).select('data,version').single();
+    if(error)throw error;
+    ABA_CLOUD_BASE=deepClone(updated.data);ABA_CLOUD_VERSION=Number(updated.version||0);
+    localStorage.setItem(STORE,JSON.stringify(updated.data));
+    data=ensureExtras(updated.data);
+    setCloudBadge('online','Đã đồng bộ');
+  }catch(e){
+    console.error('Cloud save',e);setCloudBadge('','Lỗi đồng bộ');
+  }finally{
+    ABA_CLOUD_SAVING=false;
+    if(ABA_CLOUD_PENDING){
+      const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;
+      setTimeout(()=>pushCloudState(p),80);
+    }
+  }
+}
+function queueCloudSave(d){
+  if(!ABA_CLOUD_READY){ABA_CLOUD_PENDING=deepClone(d);return}
+  clearTimeout(ABA_CLOUD_SAVE_TIMER);
+  const snap=deepClone(d);
+  ABA_CLOUD_SAVE_TIMER=setTimeout(()=>pushCloudState(snap),120);
+}
+async function connectCloudRealtime(){
+  if(ABA_CLOUD_CHANNEL)try{await ABA_SB.removeChannel(ABA_CLOUD_CHANNEL)}catch(e){}
+  ABA_CLOUD_CHANNEL=ABA_SB.channel('aba-state-sync')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'aba_app_state',filter:'id=eq.1'},payload=>{
+      const row=payload.new||{};
+      if(!localStateMeaningful(row.data))return;
+      const incomingVersion=Number(row.version||0);
+      if(incomingVersion<ABA_CLOUD_VERSION)return;
+      applyCloudState(row.data,incomingVersion);
+    }).subscribe(status=>{
+      if(status==='SUBSCRIBED')setCloudBadge('online','Realtime Online');
+    });
+}
+async function initSupabaseCloud(){
+  setCloudBadge('syncing','Kết nối Cloud…');
+  try{
+    const r=await fetch('/.netlify/functions/supabase-config',{cache:'no-store'});
+    const cfg=await r.json();
+    if(!cfg.url||!cfg.publishableKey)throw new Error('Chưa cấu hình SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY');
+    ABA_SB=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data:{session:sess}}=await ABA_SB.auth.getSession();
+    if(!sess){cloudAuthModal.classList.remove('hidden');cloudAuthStatus.textContent='Nhập tài khoản Supabase để bật đồng bộ.';setCloudBadge('','Chưa đăng nhập');return}
+    ABA_SB_USER=sess.user;cloudAuthModal.classList.add('hidden');
+    ABA_CLOUD_READY=true;
+    await bootstrapCloudIfNeeded();
+    await connectCloudRealtime();
+    if(ABA_CLOUD_PENDING){const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;queueCloudSave(p)}
+  }catch(e){
+    console.error(e);cloudAuthModal.classList.remove('hidden');cloudAuthStatus.textContent='Lỗi Cloud: '+e.message;setCloudBadge('','Lỗi Cloud');
+  }
+}
+async function cloudLogin(){
+  if(!ABA_SB)return cloudAuthStatus.textContent='Supabase chưa khởi tạo.';
+  const email=cloudEmail.value.trim(),password=cloudPassword.value;
+  if(!email||!password)return cloudAuthStatus.textContent='Nhập email và mật khẩu.';
+  cloudAuthStatus.textContent='Đang đăng nhập…';
+  const {data:res,error}=await ABA_SB.auth.signInWithPassword({email,password});
+  if(error)return cloudAuthStatus.textContent='Đăng nhập lỗi: '+error.message;
+  ABA_SB_USER=res.user;ABA_CLOUD_READY=true;cloudAuthModal.classList.add('hidden');
+  await bootstrapCloudIfNeeded();await connectCloudRealtime();
+  if(ABA_CLOUD_PENDING){const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;queueCloudSave(p)}
+}
+async function cloudLogout(){
+  if(ABA_SB)await ABA_SB.auth.signOut();
+  ABA_CLOUD_READY=false;ABA_SB_USER=null;setCloudBadge('','Đã đăng xuất');
+  cloudAuthModal.classList.remove('hidden');
+}
+async function sendUserEventPush(type,payload={}){
+  if(!ABA_SB)return;
+  try{
+    const {data:{session:sess}}=await ABA_SB.auth.getSession();if(!sess?.access_token)return;
+    await fetch('/.netlify/functions/event-push',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},
+      body:JSON.stringify({type,...payload})
+    });
+  }catch(e){console.warn('event push',e)}
+}
+
+let data=load(),viewMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1,12),previewRows=[],previewFile='';
+
+function showScreen(id,btn){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));const b=btn||document.querySelector(`.nav button[data-screen="${id}"]`);if(b)b.classList.add('active');pageTitle.textContent={dashboard:'Tổng quan',schedule:'Lịch tháng',managerpay:'Lương Quản lý',import:'Nhập Excel',notifications:'Thông báo',feedback:'Phản hồi',wifi:'Wi‑Fi'}[id]||'ABA Admin';renderAll()}
+function monthOccurrences(){
+  const first=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1,12),last=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,0,12),out=[];
+  for(let d=new Date(first);d<=last;d=addDays(d,1)){
+    const dateISO=isoLocal(d),di=(d.getDay()+6)%7;
+    for(const t of data.templates){
+      if(DAY_INDEX[t.day]!==di||!active(t,dateISO))continue;
+      const o=applyOccurrenceOverride(t,dateISO);if(o)out.push(o);
+    }
+    out.push(...monthlyExactOccurrences(dateISO));
+  }
+  return out.sort((a,b)=>a.date-b.date||(SHIFT_ORDER[a.shift]??9)-(SHIFT_ORDER[b.shift]??9)||a.teacher.localeCompare(b.teacher,'vi'));
+}
+function renderDashboard(){const a=monthOccurrences(),fb=(data.feedback||[]).filter(x=>x.status!=='resolved');dashMonth.textContent=monthName(viewMonth);stTotal.textContent=a.length;stTeacher.textContent=a.filter(x=>x.conf.teacherConfirmed).length;stManager.textContent=a.filter(x=>x.conf.managerConfirmed).length;stFeedback.textContent=fb.length;const near=a.slice(0,12);dashTable.innerHTML=near.length?`<table><thead><tr><th>Ngày</th><th>Ca</th><th>Giảng viên</th><th>Phòng</th></tr></thead><tbody>${near.map(o=>`<tr><td><b>${viDate(o.date)}</b></td><td>${safe(o.shift)}</td><td>${safe(o.teacher)}</td><td>${safe(o.room)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Không có lịch.</div>';dashFeedback.innerHTML=fb.slice(0,6).length?fb.slice(0,6).map(x=>`<div class="ticket"><div class="tickettop"><b>${safe(x.teacher)} · ${safe(x.topic)}</b><span class="tag">${x.destination==='manager'?'Quản lý':'Hệ thống'}</span></div><p>${safe(x.message)}</p><div class="meta">${new Date(x.createdAt).toLocaleString('vi-VN')}</div></div>`).join(''):'<div class="empty">Không có phản hồi mới.</div>'}
+function renderSchedule(){
+  const a=monthOccurrences(),c=data.cancellations||{};
+  monthLabel.textContent=monthName(viewMonth);scheduleCount.textContent=a.length+' buổi · chỉnh sửa chỉ áp dụng đúng tháng/ngày';
+  const taught=a.filter(o=>o.conf.teacherConfirmed&&o.conf.managerConfirmed&&!c[occKey(o,o.dateISO)]);
+  const off=a.filter(o=>c[occKey(o,o.dateISO)]);
+  const teachers=[...new Set(a.map(o=>o.teacher))].sort((x,y)=>x.localeCompare(y,'vi'));
+  adminTaughtTotal.textContent=taught.length;adminOffTotal.textContent=off.length;adminTeacherTotal.textContent=teachers.length;
+  const summary=teachers.map(t=>({teacher:t,scheduled:a.filter(o=>o.teacher===t).length,taught:taught.filter(o=>o.teacher===t).length,off:off.filter(o=>o.teacher===t).length}));
+  teacherMonthlySummary.innerHTML=summary.length?`<table><thead><tr><th>Giáo viên</th><th>Tổng lịch</th><th>Buổi đã dạy</th><th>Buổi nghỉ</th></tr></thead><tbody>${summary.map(r=>`<tr><td><b>${safe(r.teacher)}</b></td><td>${r.scheduled}</td><td><b>${r.taught}</b></td><td>${r.off}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Không có dữ liệu tháng này.</div>';
+  scheduleTable.innerHTML=a.length?`<table><thead><tr><th>Ngày</th><th>Thứ</th><th>Giảng viên</th><th>Ca</th><th>Phòng</th><th>GV</th><th>QL</th><th>Tình trạng</th><th>Lý do nghỉ</th><th>Duyệt</th><th>Thao tác</th></tr></thead><tbody>${a.map(o=>{const can=c[occKey(o,o.dateISO)];return `<tr><td><b>${viDate(o.date)}</b></td><td>${safe(o.day)}</td><td><b>${safe(o.teacher)}</b></td><td><b>${safe(o.shift)}</b></td><td><b>${safe(o.room)}</b></td><td>${o.conf.teacherConfirmed?'<span class="badge ok">Đã xác nhận</span>':'<span class="badge">Chưa</span>'}</td><td>${o.conf.managerConfirmed?'<span class="badge ok">Đã xác nhận</span>':'<span class="badge">Chưa</span>'}</td><td>${can?'<span class="off-badge">Nghỉ</span>':o.conf.managerConfirmed?'<span class="badge ok">Đã dạy</span>':'—'}</td><td>${can?'<span class="reason-text">'+safe(can.reason||'')+'</span>':'—'}</td><td>${!can&&o.conf.teacherConfirmed&&!o.conf.managerConfirmed?`<button class="btn blue" onclick="managerConfirm('${o.id}','${o.dateISO}')">Xác nhận</button>`:''}</td><td><div class="schedule-actions"><button class="small edit" onclick="openScheduleEditor('${o.id}','${o.dateISO}','${o.sourceType}')"><i data-lucide="pencil" width="12"></i>Sửa</button><button class="small delete" onclick="deleteMonthlyOccurrence('${o.id}','${o.dateISO}','${o.sourceType}')"><i data-lucide="trash-2" width="12"></i>Xóa</button></div></td></tr>`}).join('')}</tbody></table>`:'<div class="empty">Không có lịch trong tháng này.</div>';
+}
+function openScheduleEditor(id='',dateISO='',source=''){
+  data=load();
+  const editing=!!id;
+  scheduleEditTitle.textContent=editing?'Sửa buổi dạy':'Thêm buổi dạy tháng này';
+  scheduleEditId.value=id;scheduleEditSource.value=source||'';
+  if(editing){
+    const o=findOccurrence(id,dateISO);if(!o)return toast('Không tìm thấy buổi học');
+    scheduleEditDate.value=dateISO;scheduleEditDate.disabled=true;
+    scheduleEditShift.value=o.shift;scheduleEditTeacher.value=o.teacher;scheduleEditRoom.value=o.room;scheduleEditDetail.value=o.detail||'';
+    scheduleEditHint.textContent='Thay đổi này chỉ áp dụng đúng buổi '+dateISO+', các tháng khác không bị ảnh hưởng.';
+  }else{
+    scheduleEditDate.disabled=false;
+    const y=viewMonth.getFullYear(),m=String(viewMonth.getMonth()+1).padStart(2,'0');
+    scheduleEditDate.value=`${y}-${m}-01`;scheduleEditShift.value='Tối';scheduleEditTeacher.value='';scheduleEditRoom.value='';scheduleEditDetail.value='';
+    scheduleEditHint.textContent='Buổi mới chỉ được thêm vào tháng đang xem.';
+  }
+  scheduleEditModal.classList.remove('hidden');setTimeout(()=>scheduleEditTeacher.focus(),50)
+}
+function closeScheduleEditor(){scheduleEditModal.classList.add('hidden')}
+function saveScheduleEditor(){
+  data=load();
+  const id=scheduleEditId.value,source=scheduleEditSource.value,dateISO=scheduleEditDate.value;
+  const shift=scheduleEditShift.value,teacher=scheduleEditTeacher.value.trim(),room=scheduleEditRoom.value.trim(),detail=scheduleEditDetail.value.trim();
+  if(!dateISO||!teacher||!room)return toast('Cần đủ ngày, giáo viên và phòng');
+  const d=fromISO(dateISO);
+  if(d.getFullYear()!==viewMonth.getFullYear()||d.getMonth()!==viewMonth.getMonth())return toast('Ngày phải thuộc tháng đang xem');
+  data.monthlyOverrides=data.monthlyOverrides||{};data.monthlyAdditions=data.monthlyAdditions||[];
+  if(id){
+    if(source==='monthly'){
+      const x=data.monthlyAdditions.find(x=>x.id===id&&x.dateISO===dateISO);if(!x)return toast('Không tìm thấy lịch cần sửa');
+      x.shift=shift;x.teacher=teacher;x.room=room;x.detail=detail;x.day=dayFromISO(dateISO);x.updatedAt=new Date().toISOString();
+    }else{
+      const base=data.templates.find(x=>x.id===id);if(!base)return toast('Không tìm thấy lịch gốc');
+      const k=occKey(base,dateISO);data.monthlyOverrides[k]={...(data.monthlyOverrides[k]||{}),shift,teacher,room,detail,updatedAt:new Date().toISOString(),deleted:false};
+    }
+    data.notifications.unshift({id:uid(),title:'Lịch dạy đã được cập nhật',message:`${dateISO} · ${shift} · ${teacher} · Phòng ${room}`,targetType:'teacher',targetValue:teacher,createdAt:new Date().toISOString(),type:'system'});
+    data.audit.unshift({id:uid(),action:'Sửa lịch theo tháng',detail:`${dateISO} · ${shift} · ${teacher}`,createdAt:new Date().toISOString()});
+  }else{
+    const x={id:uid(),dateISO,day:dayFromISO(dateISO),shift,teacher,room,detail,createdAt:new Date().toISOString()};
+    data.monthlyAdditions.push(x);
+    data.notifications.unshift({id:uid(),title:'Có buổi dạy mới',message:`${dateISO} · ${shift} · ${teacher} · Phòng ${room}`,targetType:'teacher',targetValue:teacher,createdAt:new Date().toISOString(),type:'system'});
+    data.audit.unshift({id:uid(),action:'Thêm lịch theo tháng',detail:`${dateISO} · ${shift} · ${teacher}`,createdAt:new Date().toISOString()});
+  }
+  save(data);closeScheduleEditor();renderAll();
+  sendRealPushQuiet({title:id?'Lịch dạy đã được cập nhật':'Có buổi dạy mới',message:`${dateISO} · ${shift} · ${teacher} · Phòng ${room}`,targetType:'teacher',targetValue:teacher,url:location.origin+'/'});
+  toast('Đã lưu lịch tháng')
+}
+function deleteMonthlyOccurrence(id,dateISO,source){
+  data=load();const o=findOccurrence(id,dateISO);if(!o)return;
+  if(!confirm(`Xóa buổi ${dateISO} · ${o.shift} · ${o.teacher}? Chỉ buổi này bị xóa.`))return;
+  const k=occKey(o,dateISO);
+  if(source==='monthly'){
+    data.monthlyAdditions=(data.monthlyAdditions||[]).filter(x=>!(x.id===id&&x.dateISO===dateISO));
+  }else{
+    const base=data.templates.find(x=>x.id===id);if(!base)return;
+    data.monthlyOverrides=data.monthlyOverrides||{};
+    data.monthlyOverrides[k]={...(data.monthlyOverrides[k]||{}),deleted:true,updatedAt:new Date().toISOString()};
+  }
+  delete data.confirmations[k];delete data.cancellations[k];
+  data.notifications.unshift({id:uid(),title:'Lịch dạy đã được xóa',message:`${dateISO} · ${o.shift} · ${o.teacher}`,targetType:'teacher',targetValue:o.teacher,createdAt:new Date().toISOString(),type:'system'});
+  data.audit.unshift({id:uid(),action:'Xóa lịch theo tháng',detail:`${dateISO} · ${o.shift} · ${o.teacher}`,createdAt:new Date().toISOString()});
+  save(data);renderAll();
+  sendRealPushQuiet({title:'Lịch dạy đã được xóa',message:`${dateISO} · ${o.shift} · ${o.teacher}`,targetType:'teacher',targetValue:o.teacher,url:location.origin+'/'});
+  toast('Đã xóa buổi trong tháng')
+}
+function managerConfirm(id,dateISO){data=load();const t=findOccurrence(id,dateISO);if(!t)return;const k=occKey(t,dateISO);if(data.cancellations?.[k])return toast('Buổi này đã nghỉ');const c=data.confirmations[k]||{};if(!c.teacherConfirmed)return;c.managerConfirmed=true;c.managerConfirmedAt=new Date().toISOString();data.confirmations[k]=c;data.audit.unshift({id:uid(),action:'Quản lý xác nhận',detail:`${dateISO} · ${t.teacher} · ${t.shift}`,createdAt:new Date().toISOString()});save(data);renderAll();toast('Đã xác nhận')}
+function teacherNames(){const a=[...data.templates.map(x=>x.teacher),...(data.monthlyAdditions||[]).map(x=>x.teacher),...Object.values(data.monthlyOverrides||{}).map(x=>x.teacher)].filter(Boolean);return[...new Set(a)].sort((x,y)=>x.localeCompare(y,'vi'))}
+const PUSH_ADMIN_SECRET_KEY='aba_push_admin_secret_v1';
+let ABA_ADMIN_ONE_SIGNAL=null;
+let ABA_ADMIN_PUSH_CONFIG=null;
+
+async function initAdminOneSignalPush(){
+  try{
+    const r=await fetch('/.netlify/functions/push-config',{cache:'no-store'});
+    const cfg=await r.json();ABA_ADMIN_PUSH_CONFIG=cfg;
+    if(!cfg.appId){updateAdminNativeButton('setup');return}
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
+    window.OneSignalDeferred.push(async function(OneSignal){
+      try{
+        await OneSignal.init({
+          appId:cfg.appId,
+          serviceWorkerPath:'/OneSignalSDKWorker.js',
+          serviceWorkerParam:{scope:'/'},
+          notifyButton:{enable:false}
+        });
+        ABA_ADMIN_ONE_SIGNAL=OneSignal;
+        await OneSignal.login('admin:main');
+        OneSignal.User.addTags({role:'admin'});
+        updateAdminNativeButton();
+      }catch(e){console.error('Admin OneSignal init',e);updateAdminNativeButton('error')}
+    });
+  }catch(e){console.error(e);updateAdminNativeButton('error')}
+}
+
+function updateAdminNativeButton(state=''){
+  if(!window.adminNativeNotifyBtn)return;
+  if(state==='setup'){
+    adminNativeNotifyBtn.classList.remove('native-notify-on');
+    adminNativeNotifyBtn.querySelector('span').textContent='Push chưa cấu hình';
+    return;
+  }
+  if(state==='error'){
+    adminNativeNotifyBtn.classList.remove('native-notify-on');
+    adminNativeNotifyBtn.querySelector('span').textContent='Lỗi Push';
+    return;
+  }
+  const on=!!(ABA_ADMIN_ONE_SIGNAL&&ABA_ADMIN_ONE_SIGNAL.Notifications.permission&&ABA_ADMIN_ONE_SIGNAL.User.PushSubscription.optedIn);
+  adminNativeNotifyBtn.classList.toggle('native-notify-on',on);
+  adminNativeNotifyBtn.querySelector('span').textContent=on?'Push đã bật':'Bật thông báo Push';
+}
+
+async function enableAdminNativeNotifications(){
+  if(!ABA_ADMIN_ONE_SIGNAL){
+    if(!ABA_ADMIN_PUSH_CONFIG?.appId)return toast('Push chưa được cấu hình trên Netlify/OneSignal');
+    return toast('Dịch vụ Push đang khởi tạo, thử lại sau vài giây');
+  }
+  try{
+    await ABA_ADMIN_ONE_SIGNAL.login('admin:main');
+    ABA_ADMIN_ONE_SIGNAL.User.addTags({role:'admin'});
+    await ABA_ADMIN_ONE_SIGNAL.Notifications.requestPermission();
+    if(ABA_ADMIN_ONE_SIGNAL.Notifications.permission){
+      await ABA_ADMIN_ONE_SIGNAL.User.PushSubscription.optIn();
+      updateAdminNativeButton();
+      toast('Đã bật Push cho Admin');
+    }else toast('Bạn chưa cấp quyền thông báo');
+  }catch(e){console.error(e);toast('Không bật được Push trên thiết bị này')}
+}
+
+function scanAdminNativeNotifications(){updateAdminNativeButton()}
+
+function loadPushAdminSecret(){
+  if(window.pushAdminSecret)pushAdminSecret.value=localStorage.getItem(PUSH_ADMIN_SECRET_KEY)||'';
+}
+function savePushAdminSecret(){
+  if(!window.pushAdminSecret)return;
+  localStorage.setItem(PUSH_ADMIN_SECRET_KEY,pushAdminSecret.value.trim());
+}
+
+async function sendRealPush({title,message,targetType,targetValue='',url=''}){
+  const secret=(window.pushAdminSecret?.value||localStorage.getItem(PUSH_ADMIN_SECRET_KEY)||'').trim();
+  if(!secret)throw new Error('Chưa nhập Mã gửi Push của Admin');
+  localStorage.setItem(PUSH_ADMIN_SECRET_KEY,secret);
+  const r=await fetch('/.netlify/functions/send-push',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({adminSecret:secret,title,message,targetType,targetValue,url:url||location.origin+'/'})
+  });
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok)throw new Error(j.error||('Lỗi gửi Push '+r.status));
+  return j;
+}
+async function sendRealPushQuiet(payload){
+  try{return await sendRealPush(payload)}catch(e){console.warn('Push skipped:',e.message);return null}
+}
+
+function renderNotificationUI(){const names=teacherNames();ntTeacher.innerHTML=names.map(x=>`<option>${safe(x)}</option>`).join('');const list=(data.notifications||[]).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));adminNoticeList.innerHTML=list.length?list.map(n=>`<div class="notice"><div class="noticetop"><b>${safe(n.title)}</b><span class="tag">${targetLabel(n)}</span></div><p>${safe(n.message)}</p><div class="meta">${new Date(n.createdAt).toLocaleString('vi-VN')}</div></div>`).join(''):'<div class="empty">Chưa có thông báo.</div>'}
+function targetLabel(n){if(n.targetType==='all')return'Toàn hệ thống';if(n.targetType==='teachers')return'Giáo viên';if(n.targetType==='managers')return'Quản lý';if(n.targetType==='teacher')return n.targetValue||'Một giáo viên';return'—'}
+function toggleTeacherTarget(){ntTeacherField.classList.toggle('hidden',ntTarget.value!=='teacher')}
+async function createNotification(){
+  data=load();
+  const title=ntTitle.value.trim(),message=ntMessage.value.trim();
+  if(!title||!message)return toast('Cần tiêu đề và nội dung');
+  const targetType=ntTarget.value,targetValue=targetType==='teacher'?ntTeacher.value:'';
+  const item={id:uid(),title,message,targetType,targetValue,createdAt:new Date().toISOString(),type:'admin'};
+  data.notifications.unshift(item);
+  data.audit.unshift({id:uid(),action:'Gửi thông báo',detail:`${title} → ${targetType}`,createdAt:new Date().toISOString()});
+  save(data);renderAll();
+  try{
+    await sendRealPush({title,message,targetType,targetValue,url:location.origin+'/'});
+    ntTitle.value='';ntMessage.value='';
+    toast('Đã gửi Push ra điện thoại');
+  }catch(e){
+    console.error(e);
+    toast('Đã lưu nội bộ nhưng Push lỗi: '+e.message);
+  }
+}
+function renderFeedback(){const list=(data.feedback||[]).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));feedbackList.innerHTML=list.length?list.map(x=>`<div class="ticket"><div class="tickettop"><b>${safe(x.teacher)} · ${safe(x.topic)}</b><span class="tag ${x.status==='resolved'?'ok':''}">${x.destination==='manager'?'Gửi Quản lý':'Gửi Hệ thống'} · ${x.status==='resolved'?'Đã xử lý':'Mới'}</span></div><p>${safe(x.message)}</p><div class="meta">${new Date(x.createdAt).toLocaleString('vi-VN')}</div>${x.status!=='resolved'?`<div style="margin-top:8px"><button class="btn green" onclick="resolveFeedback('${x.id}')">Đánh dấu đã xử lý</button></div>`:''}</div>`).join(''):'<div class="empty">Chưa có phản hồi.</div>'}
+function resolveFeedback(id){data=load();const x=data.feedback.find(f=>f.id===id);if(!x)return;x.status='resolved';x.resolvedAt=new Date().toISOString();data.notifications.unshift({id:uid(),title:'Phản hồi đã được xử lý',message:`Phản hồi "${x.topic}" của bạn đã được xử lý.`,targetType:'teacher',targetValue:x.teacher,createdAt:new Date().toISOString(),type:'system'});save(data);renderAll();toast('Đã cập nhật phản hồi')}
+function normalizedWifiList(){
+  data.settings=data.settings||{};
+  if(Array.isArray(data.settings.wifis))return data.settings.wifis;
+  if(data.settings.wifi&&data.settings.wifi.ssid){
+    data.settings.wifis=[{id:uid(),floor:'Tầng 1',ssid:data.settings.wifi.ssid,password:data.settings.wifi.password||'',security:'WPA',note:data.settings.wifi.note||''}];
+    return data.settings.wifis;
+  }
+  data.settings.wifis=[];
+  return data.settings.wifis;
+}
+function renderWifi(){
+  const list=normalizedWifiList();
+  wifiEditor.innerHTML=list.length?list.map((w,i)=>`<div class="wifi-edit-card" data-wifi-index="${i}">
+    <div class="wifi-edit-head"><b>${safe(w.floor||('Mạng '+(i+1)))}</b><button class="small red" onclick="removeWifiRow(${i})" title="Xóa mạng"><i data-lucide="trash-2" width="13"></i></button></div>
+    <div class="wifi-fields">
+      <div class="field"><label>Tầng / khu vực</label><input class="input wifi-floor-input" value="${safe(w.floor||'')}"></div>
+      <div class="field"><label>Tên Wi‑Fi (SSID)</label><input class="input wifi-ssid-input" value="${safe(w.ssid||'')}"></div>
+      <div class="field"><label>Mật khẩu</label><input class="input wifi-pass-input" value="${safe(w.password||'')}"></div>
+      <div class="field"><label>Bảo mật</label><select class="select wifi-security-input"><option value="WPA" ${(w.security||'WPA')==='WPA'?'selected':''}>WPA/WPA2</option><option value="OPEN" ${w.security==='OPEN'?'selected':''}>Mở</option></select></div>
+      <div class="field wide"><label>Ghi chú</label><input class="input wifi-note-input" value="${safe(w.note||'')}" placeholder="VD: Wi‑Fi dành cho giáo viên tầng 2"></div>
+    </div>
+  </div>`).join(''):'<div class="empty">Chưa có Wi‑Fi. Bấm “Thêm tầng / mạng” để tạo.</div>';
+}
+function collectWifiEditor(){
+  return [...document.querySelectorAll('.wifi-edit-card')].map((card,i)=>({
+    id:(normalizedWifiList()[i]?.id)||uid(),
+    floor:card.querySelector('.wifi-floor-input').value.trim(),
+    ssid:card.querySelector('.wifi-ssid-input').value.trim(),
+    password:card.querySelector('.wifi-pass-input').value,
+    security:card.querySelector('.wifi-security-input').value,
+    note:card.querySelector('.wifi-note-input').value.trim()
+  })).filter(w=>w.floor||w.ssid);
+}
+function addWifiRow(){
+  data=load();const list=normalizedWifiList();
+  list.push({id:uid(),floor:'Tầng '+(list.length+1),ssid:'',password:'',security:'WPA',note:''});
+  save(data);renderWifi();if(window.lucide)lucide.createIcons()
+}
+function removeWifiRow(i){
+  data=load();const list=normalizedWifiList();if(!list[i])return;
+  if(!confirm('Xóa Wi‑Fi của '+(list[i].floor||'khu vực này')+'?'))return;
+  list.splice(i,1);save(data);renderWifi();if(window.lucide)lucide.createIcons()
+}
+function saveWifi(){
+  data=load();data.settings=data.settings||{};data.settings.wifis=collectWifiEditor();
+  data.notifications.unshift({id:uid(),title:'Thông tin Wi‑Fi đã được cập nhật',message:'Vui lòng mở mục Wi‑Fi giáo viên để xem mạng và QR mới nhất.',targetType:'teachers',targetValue:'',createdAt:new Date().toISOString(),type:'system'});
+  data.audit.unshift({id:uid(),action:'Cập nhật Wi‑Fi',detail:`${data.settings.wifis.length} mạng / khu vực`,createdAt:new Date().toISOString()});
+  save(data);renderAll();
+  sendRealPushQuiet({title:'Thông tin Wi‑Fi đã được cập nhật',message:'Mở mục Wi‑Fi giáo viên để xem mạng và QR mới nhất.',targetType:'teachers',url:location.origin+'/'});
+  toast('Đã lưu '+data.settings.wifis.length+' mạng Wi‑Fi')
+}
+function adminManagerSalaryShifts(){
+  const all=monthOccurrences(),groups=new Map();
+  for(const o of all){
+    const groupKey=o.dateISO+'__'+o.shift;
+    if(!groups.has(groupKey))groups.set(groupKey,{dateISO:o.dateISO,shift:o.shift,ok:false});
+    const canceled=!!data.cancellations?.[occKey(o,o.dateISO)];
+    if(!canceled&&o.conf.teacherConfirmed&&o.conf.managerConfirmed)groups.get(groupKey).ok=true;
+  }
+  return [...groups.values()].filter(x=>x.ok);
+}
+function renderManagerPay(){
+  const rate=Number(data.settings?.managerShiftRate||0),shifts=adminManagerSalaryShifts();
+  managerPayMonth.textContent=monthName(viewMonth);
+  managerShiftRateInput.value=rate||'';
+  adminManagerShiftCount.textContent=shifts.length;
+  adminManagerShiftRate.textContent=Math.round(rate).toLocaleString('vi-VN')+' ₫';
+  adminManagerSalary.textContent=Math.round(shifts.length*rate).toLocaleString('vi-VN')+' ₫';
+}
+function saveManagerShiftRate(){
+  data=load();const v=Math.max(0,Number(managerShiftRateInput.value||0));
+  data.settings=data.settings||{};data.settings.managerShiftRate=v;
+  data.audit.unshift({id:uid(),action:'Cập nhật đơn giá Quản lý',detail:`${v.toLocaleString('vi-VN')} VNĐ / ca`,createdAt:new Date().toISOString()});
+  save(data);renderAll();toast('Đã lưu đơn giá Quản lý')
+}
+
+function renderAll(){data=load();renderDashboard();renderSchedule();renderManagerPay();renderNotificationUI();renderFeedback();renderWifi();scanAdminNativeNotifications();if(window.lucide)lucide.createIcons()}
+function changeMonth(n){viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+n,1,12);renderAll()}
+function goToday(){const n=new Date();viewMonth=new Date(n.getFullYear(),n.getMonth(),1,12);renderAll()}
+
+function normalizeDay(v){const n=norm(v).replace(/\./g,'');const m={'thu 2':'Thứ 2','t2':'Thứ 2','2':'Thứ 2','thu hai':'Thứ 2','thu 3':'Thứ 3','t3':'Thứ 3','3':'Thứ 3','thu ba':'Thứ 3','thu 4':'Thứ 4','t4':'Thứ 4','4':'Thứ 4','thu tu':'Thứ 4','thu 5':'Thứ 5','t5':'Thứ 5','5':'Thứ 5','thu nam':'Thứ 5','thu 6':'Thứ 6','t6':'Thứ 6','6':'Thứ 6','thu sau':'Thứ 6','thu 7':'Thứ 7','t7':'Thứ 7','7':'Thứ 7','thu bay':'Thứ 7','chu nhat':'Chủ nhật','cn':'Chủ nhật','chunhat':'Chủ nhật'};return m[n]||pretty(v)}
+function normalizeShift(v){const n=norm(v);if(n.includes('sang'))return'Sáng';if(n.includes('chieu'))return'Chiều';if(n.includes('toi'))return'Tối';return pretty(v)}
+function findHeader(rows){for(let r=0;r<Math.min(rows.length,12);r++){const c=rows[r].map(norm);let s=0;c.forEach(x=>{if(['thu','ngay','ca','buoi','lop','giang vien','gv','phong'].some(k=>x===k||x.includes(k)))s++});if(s>=2)return r}return 0}
+function findCol(h,a){for(let i=0;i<h.length;i++){const x=norm(h[i]);if(a.some(k=>x===k||x.includes(k)))return i}return-1}
+async function readExcel(file){if(!file)return;try{const b=await file.arrayBuffer(),wb=XLSX.read(b,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false}),hr=findHeader(rows),h=rows[hr]||[];const cD=findCol(h,['thu','ngay']),cS=findCol(h,['ca','buoi']),cT=findCol(h,['giang vien','giao vien','gv','teacher']),cL=findCol(h,['lop','class']),cR=findCol(h,['phong','room']);if(cD<0||cS<0||(cT<0&&cL<0)||cR<0)throw Error('Không nhận diện đủ cột Thứ, Ca, Lớp/Giảng viên, Phòng');let last='',out=[];for(let i=hr+1;i<rows.length;i++){const row=rows[i]||[];if(row.every(v=>!pretty(v)))continue;const rd=pretty(row[cD]);if(rd)last=normalizeDay(rd);const x={row:i+1,day:last,shift:normalizeShift(row[cS]),teacher:pretty(cT>=0?row[cT]:row[cL]),room:pretty(row[cR]),status:'ok',msg:''};if(!x.day||!x.shift||!x.teacher||!x.room||DAY_INDEX[x.day]==null){x.status='error';x.msg='Thiếu dữ liệu'}out.push(x)}const seen=new Set(),ts=new Set(),rs=new Set();for(const x of out){if(x.status==='error')continue;const e=[norm(x.day),norm(x.shift),norm(x.teacher),norm(x.room)].join('|'),tk=[norm(x.day),norm(x.shift),norm(x.teacher)].join('|'),rk=[norm(x.day),norm(x.shift),norm(x.room)].join('|');if(seen.has(e)){x.status='duplicate';x.msg='Trùng'}else if(ts.has(tk)||rs.has(rk)){x.status='conflict';x.msg='Có lịch trùng ca'}seen.add(e);ts.add(tk);rs.add(rk)}previewRows=out;previewFile=file.name;openPreview()}catch(e){toast(e.message||'Không đọc được Excel')}}
+function openPreview(){previewName.textContent=previewFile;pRows.textContent=previewRows.filter(x=>x.status!=='error').length;pDup.textContent=previewRows.filter(x=>x.status==='duplicate').length;pConflict.textContent=previewRows.filter(x=>x.status==='conflict').length;pErr.textContent=previewRows.filter(x=>x.status==='error').length;effectiveDate.value=isoLocal(new Date());previewBody.innerHTML=previewRows.map(x=>`<tr><td>${x.row}</td><td>${safe(x.day||'—')}</td><td>${safe(x.shift||'—')}</td><td>${safe(x.teacher||'—')}</td><td>${safe(x.room||'—')}</td><td><span class="badge ${x.status==='ok'?'ok':''}">${safe(x.status==='ok'?'Sẵn sàng':x.msg||x.status)}</span></td></tr>`).join('');previewModal.classList.remove('hidden');if(window.lucide)lucide.createIcons()}
+function closePreview(){previewModal.classList.add('hidden')}
+function commitImport(){data=load();const eff=effectiveDate.value;if(!eff)return toast('Chọn ngày áp dụng');const mode=importMode.value,prev=isoLocal(addDays(fromISO(eff),-1));if(mode==='replace'){data.templates=data.templates.filter(t=>{if((t.validFrom||'0000-01-01')>=eff)return false;if(!t.validTo||t.validTo>=eff)t.validTo=prev;return true})}let added=0,seen=new Set(data.templates.filter(t=>active(t,eff)).map(t=>[norm(t.day),norm(t.shift),norm(t.teacher),norm(t.room)].join('|')));for(const r of previewRows){if(r.status==='error'||r.status==='duplicate')continue;const k=[norm(r.day),norm(r.shift),norm(r.teacher),norm(r.room)].join('|');if(mode==='merge'&&seen.has(k))continue;data.templates.push({id:uid(),day:r.day,shift:r.shift,teacher:r.teacher,room:r.room,detail:'',validFrom:eff,validTo:null});seen.add(k);added++}data.audit.unshift({id:uid(),action:'Nhập Excel',detail:`${previewFile} · ${added} lịch từ ${eff}`,createdAt:new Date().toISOString()});data.notifications.unshift({id:uid(),title:'Lịch dạy đã được cập nhật',message:'Vui lòng kiểm tra lịch tháng để xem lịch mới nhất.',targetType:'teachers',targetValue:'',createdAt:new Date().toISOString(),type:'system'});save(data);closePreview();const d=fromISO(eff);viewMonth=new Date(d.getFullYear(),d.getMonth(),1,12);showScreen('schedule');toast('Đã áp dụng '+added+' lịch')}
+function downloadTemplate(){const rows=[['Thứ','Ca','Lớp','Phòng'],['thứ 2','Tối','Cô Liên','Tầng 1'],['','Tối','Cô Huyền','301'],['thứ 3','Tối','Cô Thu','401']],ws=XLSX.utils.aoa_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Lịch');XLSX.writeFile(wb,'Mau_nhap_lich_ABA.xlsx')}
+async function exportMonth(){
+  const all=monthOccurrences(),c=data.cancellations||{};
+  if(!all.length)return toast('Tháng này chưa có lịch để xuất');
+  if(!window.ExcelJS)return toast('Chưa tải được thư viện Excel, vui lòng thử lại');
+
+  const groups=[];
+  for(const o of all){
+    const key=o.dateISO+'__'+o.shift;
+    let g=groups.find(x=>x.key===key);
+    if(!g){g={key,date:o.date,dateISO:o.dateISO,day:o.day,shift:o.shift,items:[]};groups.push(g)}
+    g.items.push(o);
+  }
+  groups.sort((a,b)=>a.date-b.date||(SHIFT_ORDER[a.shift]??9)-(SHIFT_ORDER[b.shift]??9));
+
+  const wb=new ExcelJS.Workbook();
+  wb.creator='ABA Learning Portal';
+  const ws=wb.addWorksheet('Phiếu ký',{
+    pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,
+      margins:{left:0.25,right:0.25,top:0.35,bottom:0.35,header:0.15,footer:0.15},horizontalCentered:true},
+    views:[{state:'frozen',ySplit:5}]
+  });
+
+  ws.columns=[
+    {key:'date',width:18},{key:'shift',width:12},{key:'teacher',width:20},{key:'room',width:13},
+    {key:'teacherSign',width:22},{key:'managerSign',width:22},{key:'note',width:31}
+  ];
+
+  const navy='111827', headerFill='E5E7EB', borderColor='D1D5DB', text='111827', muted='6B7280';
+  const thinBorder={
+    top:{style:'thin',color:{argb:'FF'+borderColor}},
+    bottom:{style:'thin',color:{argb:'FF'+borderColor}},
+    left:{style:'thin',color:{argb:'FF'+borderColor}},
+    right:{style:'thin',color:{argb:'FF'+borderColor}}
+  };
+
+  ws.mergeCells('A1:G1');
+  Object.assign(ws.getCell('A1'),{value:`BẢNG XÁC NHẬN LỊCH DẠY THÁNG ${String(viewMonth.getMonth()+1).padStart(2,'0')}/${viewMonth.getFullYear()}`});
+  ws.getCell('A1').font={name:'Arial',size:16,bold:true,color:{argb:'FFFFFFFF'}};
+  ws.getCell('A1').fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+navy}};
+  ws.getCell('A1').alignment={horizontal:'center',vertical:'middle'};
+  ws.getRow(1).height=28;
+
+  ws.mergeCells('A2:G2');
+  ws.getCell('A2').value='ABA Learning Portal – Phiếu Giáo viên và Quản lý ký xác nhận trực tiếp';
+  ws.getCell('A2').font={name:'Arial',size:11,bold:true,color:{argb:'FF374151'}};
+  ws.getCell('A2').alignment={horizontal:'center',vertical:'middle'};
+  ws.getRow(2).height=22;
+
+  ws.mergeCells('A3:G3');
+  ws.getCell('A3').value='Cùng một ngày + cùng một ca: ô Ngày và ô Ca được gộp dọc, không lặp lại.';
+  ws.getCell('A3').font={name:'Arial',size:10,color:{argb:'FF'+muted}};
+  ws.getCell('A3').alignment={horizontal:'center',vertical:'middle',wrapText:true};
+  ws.getRow(3).height=25;
+  ws.getRow(4).height=12;
+
+  const headers=['NGÀY','CA','GIÁO VIÊN','PHÒNG','GV KÝ XÁC NHẬN','QL KÝ XÁC NHẬN','GHI CHÚ / LÝ DO NGHỈ'];
+  headers.forEach((h,i)=>{
+    const cell=ws.getRow(5).getCell(i+1);
+    cell.value=h;
+    cell.font={name:'Arial',size:11,bold:true,color:{argb:'FF'+text}};
+    cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+headerFill}};
+    cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+    cell.border={
+      top:{style:'thin',color:{argb:'FF9CA3AF'}},bottom:{style:'thin',color:{argb:'FF9CA3AF'}},
+      left:{style:'thin',color:{argb:'FF9CA3AF'}},right:{style:'thin',color:{argb:'FF9CA3AF'}}
+    };
+  });
+  ws.getRow(5).height=30;
+
+  let rowNo=6;
+  for(const g of groups){
+    const startRow=rowNo;
+    for(const o of g.items){
+      const can=c[occKey(o,o.dateISO)];
+      const r=ws.getRow(rowNo);
+      r.values=['','',o.teacher,o.room,'','',can?.reason||''];
+      r.height=40;
+      for(let col=1;col<=7;col++){
+        const cell=r.getCell(col);
+        cell.font={name:'Arial',size:11,color:{argb:'FF'+text}};
+        cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+        cell.border=thinBorder;
+      }
+      rowNo++;
+    }
+    const endRow=rowNo-1;
+    ws.getCell(`A${startRow}`).value=`${viDate(g.date)}\n${g.day}`;
+    ws.getCell(`B${startRow}`).value=g.shift;
+    if(endRow>startRow){
+      ws.mergeCells(`A${startRow}:A${endRow}`);
+      ws.mergeCells(`B${startRow}:B${endRow}`);
+    }
+    [`A${startRow}`,`B${startRow}`].forEach(addr=>{
+      const cell=ws.getCell(addr);
+      cell.font={name:'Arial',size:11,color:{argb:'FF'+text}};
+      cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+      cell.border=thinBorder;
+    });
+  }
+
+  rowNo+=2;
+  const signTitleRow=rowNo;
+  ws.mergeCells(`A${signTitleRow}:C${signTitleRow}`);
+  ws.mergeCells(`E${signTitleRow}:G${signTitleRow}`);
+  ws.getCell(`A${signTitleRow}`).value='NGƯỜI LẬP BẢNG';
+  ws.getCell(`E${signTitleRow}`).value='QUẢN LÝ XÁC NHẬN CUỐI THÁNG';
+  [ws.getCell(`A${signTitleRow}`),ws.getCell(`E${signTitleRow}`)].forEach(cell=>{
+    cell.font={name:'Arial',size:11,bold:true};
+    cell.alignment={horizontal:'center',vertical:'middle'};
+  });
+  ws.getRow(signTitleRow).height=24;
+  ws.mergeCells(`A${signTitleRow+1}:C${signTitleRow+3}`);
+  ws.mergeCells(`E${signTitleRow+1}:G${signTitleRow+3}`);
+  [signTitleRow+1,signTitleRow+2,signTitleRow+3].forEach(r=>ws.getRow(r).height=26);
+
+  const ws2=wb.addWorksheet('Tổng hợp giáo viên');
+  ws2.columns=[
+    {header:'Giáo viên',key:'teacher',width:22},{header:'Tổng lịch',key:'scheduled',width:14},
+    {header:'Buổi đã dạy',key:'taught',width:16},{header:'Buổi nghỉ',key:'off',width:14}
+  ];
+  const teachers=[...new Set(all.map(o=>o.teacher))].sort((x,y)=>x.localeCompare(y,'vi'));
+  const taught=all.filter(o=>o.conf.teacherConfirmed&&o.conf.managerConfirmed&&!c[occKey(o,o.dateISO)]);
+  const off=all.filter(o=>c[occKey(o,o.dateISO)]);
+  teachers.forEach(t=>ws2.addRow({
+    teacher:t,scheduled:all.filter(o=>o.teacher===t).length,
+    taught:taught.filter(o=>o.teacher===t).length,off:off.filter(o=>o.teacher===t).length
+  }));
+  ws2.getRow(1).eachCell(cell=>{
+    cell.font={name:'Arial',size:11,bold:true};
+    cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+headerFill}};
+    cell.alignment={horizontal:'center',vertical:'middle'};
+    cell.border=thinBorder;
+  });
+  ws2.eachRow((row,rn)=>{
+    if(rn===1)return;
+    row.height=24;
+    row.eachCell(cell=>{
+      cell.font={name:'Arial',size:11};
+      cell.alignment={horizontal:'center',vertical:'middle'};
+      cell.border=thinBorder;
+    });
+  });
+
+  const buffer=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Bang_xac_nhan_lich_day_'+(viewMonth.getMonth()+1)+'_'+viewMonth.getFullYear()+'.xlsx';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Đã xuất phiếu ký Excel');
+}
+function setupDrop(){['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));drop.addEventListener('drop',e=>readExcel(e.dataTransfer.files[0]))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(()=>t.classList.remove('show'),1900)}
+window.addEventListener('storage',e=>{if(e.key===STORE)renderAll()});setupDrop();toggleTeacherTarget();renderAll();loadPushAdminSecret();initAdminOneSignalPush();initSupabaseCloud()
+</script>
+</body>
+</html>

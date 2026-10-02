@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>Xác Nhận Lịch Dạy | Premium Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<style>
+:root{
+  --bg:#f7f8fa;--card:#ffffff;--ink:#111318;--muted:#7a808a;--line:#e8eaee;--soft:#f3f4f6;
+  --green:#16834a;--greenbg:#eefaf3;--blue:#111318;--bluebg:#f1f2f4;--red:#b42318;
+  --shadow:0 12px 32px rgba(20,24,32,.055);--radius:22px
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+.sidebar{
+  height:100vh;position:sticky;top:0;background:#fff;color:var(--ink);padding:22px 16px;
+  border-right:1px solid var(--line);z-index:30
+}
+.brand{display:flex;align-items:center;gap:12px;padding:3px 8px 26px;font-weight:800}
+.mark{width:42px;height:42px;border-radius:14px;background:#111318;color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(17,19,24,.13)}
+.brand small{display:block;color:#9aa0aa;font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.brand b{font-size:14px;letter-spacing:-.25px}
+.nav{display:grid;gap:6px}
+.nav button{
+  width:100%;border:0;background:transparent;color:#737983;border-radius:13px;padding:12px 13px;text-align:left;
+  display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;transition:.18s
+}
+.nav button:hover{background:#f5f6f8;color:#111318}
+.nav button.active{background:#111318;color:#fff;box-shadow:0 8px 18px rgba(17,19,24,.10)}
+.nav .count{margin-left:auto;background:#eceef1;color:#5f6670;border-radius:999px;padding:3px 7px;font-size:8px}
+.nav button.active .count{background:#2b2f36;color:#fff}
+.sidefoot{position:absolute;left:16px;right:16px;bottom:18px}
+.identity{background:#f7f8fa;border:1px solid var(--line);border-radius:15px;padding:12px}
+.identity small{display:block;color:#9aa0aa;font-size:8px;margin-bottom:4px}.identity b{font-size:10px}
+.identity button{margin-top:9px;width:100%;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;color:#111318;font-size:9px;font-weight:700}
+.main{min-width:0}
+.topbar{
+  height:72px;position:sticky;top:0;z-index:25;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px
+}
+.topbar small{font-size:9px;color:#8b919b;font-weight:600}.topbar h1{font-size:18px;margin:2px 0 0;letter-spacing:-.35px}
+.topactions{display:flex;gap:8px}
+.iconbtn,.btn{border:0;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:750;transition:.18s}
+.iconbtn{width:42px;height:42px;background:#f4f5f7;color:#24272d}
+.btn{padding:10px 14px;font-size:10px}.btn.primary{background:#111318;color:#fff}.btn.secondary{background:#fff;border:1px solid var(--line);color:#111318}.btn.blue{background:#f1f2f4;color:#111318}
+.btn:hover,.iconbtn:hover{transform:translateY(-1px)}
+.content{padding:28px 30px 44px;max-width:1320px;margin:auto}.screen{display:none}.screen.active{display:block}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:20px}
+.eyebrow{font-size:9px;color:#9aa0aa;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+.hero h2{font-size:30px;line-height:1.15;letter-spacing:-1px;margin:6px 0 6px}
+.hero p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}
+.tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.monthlabel{min-width:160px;text-align:center;font-size:12px;font-weight:800}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.cardhead{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cardtitle{font-size:13px;font-weight:800;letter-spacing:-.2px}.cardsub{font-size:9px;color:var(--muted);margin-top:4px}
+.cardbody{padding:20px}
+.monthlist{display:grid}
+.daygroup{border-bottom:1px solid #eef0f2}.daygroup:last-child{border-bottom:0}
+.dayhead{display:grid;grid-template-columns:145px minmax(0,1fr);align-items:center;padding:15px 20px;background:#fbfbfc}
+.dayhead.today{background:#f2f3f5}
+.datebox b{font-size:15px;display:block;letter-spacing:-.25px}.datebox span{font-size:10px;color:var(--muted)}
+.daynote{font-size:10px;color:#9aa0aa}
+.sessions{padding:10px 20px 15px 165px;margin-top:-54px;min-height:66px;display:grid;gap:8px}
+.session{
+  border:1px solid var(--line);border-radius:15px;padding:14px 16px;display:grid;
+  grid-template-columns:150px minmax(0,1fr) 120px;gap:16px;align-items:center;background:#fff
+}
+.session:hover{border-color:#d8dbe0;box-shadow:0 5px 18px rgba(20,24,32,.035)}
+.label{font-size:9px!important;color:#969ca5!important;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.value{font-size:15px!important;color:#111318!important;font-weight:800;line-height:1.35}
+.subvalue{font-size:11px!important;color:#656c76!important;margin-top:4px}
+.confirm{width:100%;border:0;border-radius:10px;padding:10px 9px;background:#111318;color:#fff;font-size:10px;font-weight:800}
+.confirm.manager{background:#111318;color:#fff}
+.confirm:disabled{opacity:.32;cursor:not-allowed}
+.confirmed{width:100%;border-radius:10px;padding:10px 9px;background:var(--greenbg);color:var(--green);font-size:10px;font-weight:800;text-align:center}
+.no-class{font-size:10px;color:#9da3ac;padding:8px 0}
+.feed{display:grid}
+.notice{padding:17px 20px;border-bottom:1px solid #eef0f2;display:flex;gap:12px}.notice:last-child{border-bottom:0}
+.noticeicon{width:38px;height:38px;border-radius:12px;background:#f3f4f6;display:grid;place-items:center;flex:none}
+.notice b{display:block;font-size:11px}.notice p{margin:5px 0;font-size:10px;line-height:1.6;color:var(--muted)}.notice time{font-size:8px;color:#9aa0aa}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:9px;font-weight:750;margin-bottom:6px}.field.full{grid-column:1/-1}
+.input,.select,.textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;font-size:10px;outline:none}
+.textarea{min-height:120px;resize:vertical}.input:focus,.select:focus,.textarea:focus{border-color:#bfc4cb;box-shadow:0 0 0 3px #f0f1f3}
+.ticket{padding:16px 20px;border-bottom:1px solid #eef0f2}.ticket:last-child{border-bottom:0}.tickettop{display:flex;justify-content:space-between;gap:10px}
+.ticket b{font-size:11px}.ticket p{font-size:10px;color:var(--muted);line-height:1.6;margin:5px 0}
+.tag{display:inline-flex;border-radius:999px;padding:5px 8px;background:#f2f3f5;font-size:8px;font-weight:750;color:#5f6670}.tag.ok{background:var(--greenbg);color:var(--green)}
+.wifihero{display:flex;align-items:center;gap:15px}.wifiicon{width:58px;height:58px;border-radius:18px;background:#111318;color:#fff;display:grid;place-items:center}
+.wifihero h3{font-size:17px;margin:0}.wifihero p{margin:4px 0 0;color:var(--muted);font-size:10px}.wifirow{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}
+.password{border:1px solid var(--line);border-radius:13px;padding:13px;background:#fafbfc;font-size:13px;font-weight:800;letter-spacing:.7px}
+.empty{text-align:center;padding:46px 16px;color:var(--muted);font-size:10px}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(17,19,24,.42);backdrop-filter:blur(8px);display:grid;place-items:center;padding:18px}
+.modalcard{width:min(540px,100%);background:#fff;border-radius:28px;padding:28px;box-shadow:0 30px 100px rgba(0,0,0,.22)}
+.modalmark{width:54px;height:54px;border-radius:18px;background:#111318;color:#fff;display:grid;place-items:center;margin-bottom:17px}
+.modal h2{font-size:25px;margin:0;letter-spacing:-.7px}.modal p{font-size:11px;line-height:1.7;color:var(--muted);margin:8px 0 0}
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px}
+.rolechoice{border:1px solid var(--line);background:#fff;border-radius:18px;padding:17px;text-align:left;transition:.18s}
+.rolechoice:hover{border-color:#cfd3d9;background:#fafafa;transform:translateY(-1px)}
+.rolechoice b{display:block;font-size:13px;margin-bottom:3px}.rolechoice span{font-size:9px;color:var(--muted);line-height:1.5}
+.teacherpick{border-top:1px solid var(--line);margin-top:16px;padding-top:16px}
+.toast{position:fixed;left:50%;bottom:24px;z-index:200;transform:translate(-50%,18px);opacity:0;background:#111318;color:white;padding:11px 14px;border-radius:13px;font-size:10px;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.mobiletop{display:none}
+@media(max-width:930px){
+  .shell{grid-template-columns:78px minmax(0,1fr)}.brand>div:last-child,.nav span:not(.count),.sidefoot small,.sidefoot b,.sidefoot button{display:none}
+  .brand,.nav button{justify-content:center}.nav .count{position:absolute;right:7px}.sidebar{padding:18px 10px}.sidefoot{left:10px;right:10px}.identity{height:46px;display:grid;place-items:center}.identity:after{content:"●";color:#16a34a}
+}
+@media(max-width:700px){
+  .shell{display:block}.sidebar{display:none}.mobiletop{display:flex}.topbar{height:62px;padding:0 13px}.content{padding:16px 13px 30px}
+  .hero{display:block}.hero h2{font-size:24px}.tools{margin-top:14px}.monthlabel{min-width:0;flex:1}
+  .dayhead{grid-template-columns:1fr;padding:13px}.sessions{padding:8px 10px 12px;margin-top:0}.session{grid-template-columns:95px minmax(0,1fr);padding:13px}.session>div:last-child{grid-column:1/-1}
+  .formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.rolegrid{grid-template-columns:1fr}.modalcard{padding:22px}
+}
+
+/* V8 — larger text + multi-floor Wi-Fi */
+.brand small{font-size:11px}.brand b{font-size:17px}
+.nav button{font-size:14px;padding:14px 14px}.nav .count{font-size:10px}
+.identity small{font-size:10px}.identity b{font-size:13px}.identity button{font-size:11px}
+.topbar small{font-size:11px}.topbar h1{font-size:22px}
+.btn{font-size:13px;padding:11px 15px}.eyebrow{font-size:11px}.hero h2{font-size:34px}.hero p{font-size:14px}
+.monthlabel{font-size:15px}.cardtitle{font-size:16px}.cardsub{font-size:12px}
+.datebox b{font-size:18px}.datebox span{font-size:13px}.daynote{font-size:12px}
+.label{font-size:11px!important}.value{font-size:19px!important}.subvalue{font-size:14px!important}
+.confirm,.confirmed{font-size:13px;padding:12px 10px}.no-class{font-size:12px}
+.notice b{font-size:14px}.notice p{font-size:13px}.notice time{font-size:10px}
+.field label{font-size:12px}.input,.select,.textarea{font-size:13px}
+.ticket b{font-size:14px}.ticket p{font-size:13px}.tag{font-size:10px}
+.empty{font-size:12px}.modal h2{font-size:28px}.modal p{font-size:14px}.rolechoice b{font-size:16px}.rolechoice span{font-size:12px}
+.wifi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wifi-card{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) 176px;gap:18px;align-items:center}
+.wifi-floor{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border-radius:999px;background:#f2f3f5;font-size:11px;font-weight:800;margin-bottom:10px}
+.wifi-card h3{font-size:19px;margin:0 0 6px}.wifi-card p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.wifi-pass-label{font-size:11px;color:#8a919b;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-top:14px}
+.wifi-pass{font-size:16px;font-weight:800;margin-top:5px;word-break:break-all}
+.wifi-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.qr-wrap{display:grid;place-items:center;padding:8px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.qr-box{width:160px;height:160px;display:grid;place-items:center}.qr-box img,.qr-box canvas{max-width:160px!important;max-height:160px!important}
+.qr-hint{text-align:center;font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4}
+@media(max-width:880px){.wifi-grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .hero h2{font-size:28px}.hero p{font-size:13px}.cardtitle{font-size:15px}
+  .session{grid-template-columns:105px minmax(0,1fr)}.value{font-size:17px!important}.subvalue{font-size:13px!important}
+  .wifi-card{grid-template-columns:1fr}.qr-wrap{justify-self:start}.wifi-grid{grid-template-columns:1fr}
+}
+
+/* --- ADD-ON V12: nghỉ lớp + tính lương (không thay CSS cốt lõi) --- */
+.off-session{background:#fffafa!important;border-color:#efd7d2!important}
+.offbox{width:100%;border-radius:10px;padding:10px 9px;background:#fff2f0;color:#b42318;font-size:12px;font-weight:800;text-align:center;line-height:1.4}
+.offreason{display:block;font-size:10px;font-weight:600;margin-top:4px;color:#b94d43}
+.manager-actions{display:grid;gap:6px}
+.cancel-btn{width:100%;border:1px solid #efd0ca;border-radius:10px;padding:9px 7px;background:#fff;color:#b42318;font-size:10px;font-weight:800}
+.restore-btn{width:100%;border:1px solid #d9dce1;border-radius:10px;padding:8px 7px;background:#fff;color:#555d67;font-size:9px;font-weight:800;margin-top:6px}
+.salary-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.salary-stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.salary-stat span{font-size:11px;color:var(--muted);font-weight:700}.salary-stat strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.7px}
+.salary-table-wrap{overflow:auto}.salary-table{width:100%;border-collapse:collapse;min-width:1020px}
+.salary-table th{font-size:11px;color:#737983;text-align:left;padding:12px 13px;background:#fafbfc;border-bottom:1px solid var(--line);font-weight:800;white-space:nowrap}
+.salary-table td{font-size:13px;padding:12px 13px;border-bottom:1px solid #eef0f2;vertical-align:middle}
+.salary-input{width:135px;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:12px;outline:none;background:#fff}
+.salary-note{width:180px}.salary-money{font-size:14px;font-weight:800;white-space:nowrap}.salary-paid{font-weight:800;color:var(--green);white-space:nowrap}
+.salary-help{font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px}
+@media(max-width:900px){.salary-summary{grid-template-columns:1fr 1fr}}
+
+
+/* --- V13: KHÔI PHỤC CHỮ TO + KÉO NÚT XÁC NHẬN LẠI GẦN --- */
+/* Không thay đổi logic lịch, lương, nghỉ lớp, thông báo, phản hồi hay Wi‑Fi */
+.topbar h1{font-size:24px}
+.nav button{font-size:15px}
+.hero h2{font-size:36px}
+.hero p{font-size:15px}
+.monthlabel{font-size:16px}
+.datebox b{font-size:21px}
+.datebox span{font-size:14px}
+.daynote{font-size:13px}
+
+/* Không cho cột giữa giãn hết màn hình: nút xác nhận nằm sát thông tin lớp */
+.session{
+  grid-template-columns:135px minmax(280px,460px) 150px!important;
+  justify-content:start!important;
+  gap:18px!important;
+  padding:17px 18px!important;
+}
+.sessions{padding-right:20px}
+.label{font-size:13px!important;margin-bottom:5px!important}
+.value{font-size:22px!important;line-height:1.28!important}
+.subvalue{font-size:16px!important;line-height:1.45!important;margin-top:5px!important}
+.subvalue b{font-size:16px!important}
+.confirm,.confirmed{font-size:15px!important;padding:13px 12px!important}
+.cancel-btn{font-size:12px!important;padding:10px 8px!important}
+.restore-btn{font-size:11px!important;padding:9px 8px!important}
+.offbox{font-size:14px!important;padding:12px 10px!important}
+.offreason{font-size:12px!important}
+
+/* Các khối thông tin khác cũng tăng nhẹ cho đồng bộ */
+.notice b{font-size:15px}
+.notice p{font-size:14px}
+.ticket b{font-size:15px}
+.ticket p{font-size:14px}
+.cardtitle{font-size:17px}
+.cardsub{font-size:13px}
+.btn{font-size:14px}
+.field label{font-size:13px}
+.input,.select,.textarea{font-size:14px}
+
+@media(max-width:900px){
+  .session{
+    grid-template-columns:120px minmax(220px,1fr) 145px!important;
+  }
+}
+@media(max-width:700px){
+  .hero h2{font-size:30px}
+  .session{
+    grid-template-columns:110px minmax(0,1fr)!important;
+    gap:12px!important;
+    padding:15px!important;
+  }
+  .session>div:last-child{grid-column:1/-1}
+  .value{font-size:20px!important}
+  .subvalue,.subvalue b{font-size:15px!important}
+  .confirm,.confirmed{font-size:15px!important}
+}
+
+
+/* V14 — modal nghỉ lớp ổn định hơn prompt trình duyệt */
+.cancel-modal-card{width:min(520px,100%);background:#fff;border-radius:24px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.24)}
+.cancel-modal-card h3{font-size:22px;margin:0 0 6px;letter-spacing:-.5px}
+.cancel-modal-card p{font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 15px}
+.cancel-summary{background:#f7f8fa;border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:12px;font-size:13px;font-weight:700}
+.cancel-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+
+.native-notify-on{background:var(--greenbg)!important;color:var(--green)!important}
+
+
+/* V20 — Supabase Cloud Sync */
+.cloud-auth-modal{position:fixed;inset:0;z-index:500;background:rgba(17,19,24,.64);backdrop-filter:blur(10px);display:grid;place-items:center;padding:18px}
+.cloud-auth-card{width:min(470px,100%);background:#fff;border-radius:26px;padding:26px;box-shadow:0 30px 100px rgba(0,0,0,.28)}
+.cloud-auth-card h2{font-size:25px;margin:0;letter-spacing:-.7px}
+.cloud-auth-card p{font-size:12px;color:var(--muted);line-height:1.65;margin:8px 0 18px}
+.cloud-auth-fields{display:grid;gap:10px}.cloud-auth-status{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+.cloud-sync-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:800;color:#6b7280}
+.cloud-sync-badge.online{background:#eefaf3;color:#16834a;border-color:#d6f0df}
+.cloud-sync-badge.syncing{background:#fff8e8;color:#9a6700;border-color:#f2dfaa}
+.cloud-sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="mark"><i data-lucide="calendar-check-2" width="18"></i></div><div><small>ABA Learning</small><b id="sideBrand">Portal Xác Nhận Lịch Dạy</b></div></div>
+  <nav class="nav">
+    <button class="active" data-screen="schedule" onclick="showScreen('schedule',this)"><i data-lucide="calendar-days" width="15"></i><span>Lịch tháng</span></button>
+    <button id="salaryNav" class="hidden" data-screen="salary" onclick="showScreen('salary',this)"><i data-lucide="banknote" width="15"></i><span>Tính lương</span></button>
+    <button data-screen="notifications" onclick="showScreen('notifications',this)"><i data-lucide="bell-ring" width="15"></i><span>Thông báo</span><span class="count" id="noticeCount">0</span></button>
+    <button id="feedbackNav" data-screen="feedback" onclick="showScreen('feedback',this)"><i data-lucide="message-square-text" width="15"></i><span>Phản hồi</span></button>
+    <button data-screen="wifi" onclick="showScreen('wifi',this)"><i data-lucide="wifi" width="15"></i><span>Wi‑Fi</span></button>
+  </nav>
+  <div class="sidefoot"><div class="identity"><small>Đang đăng nhập</small><b id="identityLabel">Chưa chọn vai trò</b><button onclick="openRole()">Đổi vai trò</button></div></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div><small id="topKicker">Portal Xác Nhận Lịch Dạy</small><h1 id="pageTitle">Lịch tháng</h1></div>
+  <div class="topactions">
+    <span class="cloud-sync-badge" id="cloudSyncBadge" title="Trạng thái đồng bộ"><span class="cloud-sync-dot"></span><span id="cloudSyncText">Cloud…</span></span>
+    <button class="iconbtn mobiletop" onclick="cycleScreen()"><i data-lucide="menu" width="16"></i></button>
+    <button class="btn secondary" id="nativeNotifyBtn" onclick="enableNativeNotifications()"><i data-lucide="bell-ring" width="13"></i><span>Bật thông báo</span></button>
+    <button class="btn secondary" onclick="openRole()"><i data-lucide="user-round" width="13"></i><span id="roleLabel">Chọn vai trò</span></button>
+  </div>
+</header>
+
+<div class="content">
+<section class="screen active" id="schedule">
+  <div class="hero">
+    <div><div class="eyebrow">Monthly Schedule</div><h2 id="scheduleTitle">Lịch dạy theo tháng</h2><p>Danh sách đầy đủ từ ngày đầu tháng đến ngày cuối tháng.</p></div>
+    <div class="tools"><button class="iconbtn" onclick="changeMonth(-1)"><i data-lucide="chevron-left" width="16"></i></button><div class="monthlabel" id="monthLabel"></div><button class="iconbtn" onclick="changeMonth(1)"><i data-lucide="chevron-right" width="16"></i></button><button class="btn secondary" onclick="goToday()">Tháng này</button></div>
+  </div>
+  <div class="card"><div class="monthlist" id="monthList"></div></div>
+</section>
+
+<section class="screen" id="salary">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Manager Payroll</div>
+      <h2>Lương Quản lý</h2>
+      <p>Mỗi ngày + mỗi ca chỉ tính 1 ca Quản lý, không phụ thuộc có bao nhiêu lớp hay giáo viên.</p>
+    </div>
+    <div class="tools">
+      <button class="iconbtn" onclick="changeMonth(-1)"><i data-lucide="chevron-left" width="16"></i></button>
+      <div class="monthlabel" id="salaryMonthLabel"></div>
+      <button class="iconbtn" onclick="changeMonth(1)"><i data-lucide="chevron-right" width="16"></i></button>
+      <button class="btn secondary" onclick="goToday()">Tháng này</button>
+      <button class="btn secondary" onclick="exportSalaryCSV()"><i data-lucide="download" width="13"></i>Xuất CSV</button>
+    </div>
+  </div>
+
+  <div class="salary-summary">
+    <div class="salary-stat"><span>Số ca đủ điều kiện</span><strong id="salarySessionCount">0</strong></div>
+    <div class="salary-stat"><span>Đơn giá / ca</span><strong id="salaryRateDisplay">0 ₫</strong></div>
+    <div class="salary-stat"><span>Lương tháng</span><strong id="salaryGrandTotal">0 ₫</strong></div>
+    <div class="salary-stat"><span>Quy tắc</span><strong style="font-size:16px;line-height:1.5">1 ngày + 1 ca = 1 ca</strong></div>
+  </div>
+
+  <div class="card">
+    <div class="cardhead">
+      <div>
+        <div class="cardtitle">Các ca được tính lương</div>
+        <div class="cardsub">Một ca chỉ xuất hiện một lần dù có nhiều lớp cùng học.</div>
+      </div>
+    </div>
+    <div class="salary-table-wrap">
+      <table class="salary-table">
+        <thead><tr><th>Ngày</th><th>Thứ</th><th>Ca</th><th>Số lớp trong ca</th><th>Lớp đã xác nhận đủ</th><th>Tiền ca</th></tr></thead>
+        <tbody id="salaryBody"></tbody>
+      </table>
+    </div>
+    <div class="cardbody">
+      <div class="salary-help">Ca được tính khi có ít nhất một lớp trong ca đó đã được <b>cả Giáo viên và Quản lý xác nhận</b> và lớp đó không bị ghi nhận nghỉ. Đơn giá được Admin thiết lập.</div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="notifications">
+  <div class="hero"><div><div class="eyebrow">Notifications</div><h2>Thông báo</h2><p>Thông báo từ hệ thống được lọc đúng theo đối tượng nhận.</p></div></div>
+  <div class="card"><div class="cardhead"><div><div class="cardtitle">Thông báo dành cho bạn</div><div class="cardsub">Toàn hệ thống hoặc đúng vai trò / đúng giáo viên</div></div></div><div class="feed" id="noticeList"></div></div>
+</section>
+
+<section class="screen" id="feedback">
+  <div id="teacherFeedback">
+    <div class="hero"><div><div class="eyebrow">Feedback</div><h2>Gửi phản hồi</h2><p>Hệ thống ghi nhận phản hồi và tự chuyển đúng nơi tiếp nhận.</p></div></div>
+    <div class="card"><div class="cardhead"><div><div class="cardtitle">Tạo phản hồi mới</div><div class="cardsub">Có thể gửi cho Hệ thống hoặc Quản lý</div></div></div><div class="cardbody">
+      <div class="formgrid">
+        <div class="field"><label>Gửi đến</label><select class="select" id="fbDestination"><option value="system">Hệ thống</option><option value="manager">Quản lý</option></select></div>
+        <div class="field"><label>Chủ đề</label><select class="select" id="fbTopic"><option>Lịch dạy</option><option>Phòng học / thiết bị</option><option>Wi‑Fi</option><option>Học viên</option><option>Khác</option></select></div>
+        <div class="field full"><label>Nội dung phản hồi</label><textarea class="textarea" id="fbMessage" placeholder="Nhập nội dung cần phản hồi..."></textarea></div>
+      </div><div style="margin-top:10px"><button class="btn primary" onclick="sendFeedback()"><i data-lucide="send" width="13"></i>Gửi phản hồi</button></div>
+    </div></div>
+    <div class="card" style="margin-top:12px"><div class="cardhead"><div><div class="cardtitle">Phản hồi đã gửi</div><div class="cardsub">Theo dõi trạng thái xử lý</div></div></div><div id="myFeedback"></div></div>
+  </div>
+  <div id="managerFeedback" class="hidden">
+    <div class="hero"><div><div class="eyebrow">Manager Inbox</div><h2>Phản hồi từ giáo viên</h2><p>Chỉ hiển thị các phản hồi giáo viên gửi đến Quản lý.</p></div></div>
+    <div class="card"><div id="managerFeedbackList"></div></div>
+  </div>
+</section>
+
+<section class="screen" id="wifi">
+  <div class="hero"><div><div class="eyebrow">Teacher Wi‑Fi</div><h2>Wi‑Fi giáo viên</h2><p>Chọn đúng tầng đang đứng, sau đó quét QR để kết nối nhanh.</p></div></div>
+  <div class="wifi-grid" id="wifiList"></div>
+</section>
+</div>
+</main>
+</div>
+
+<div class="modal" id="roleModal">
+  <div class="modalcard">
+    <div class="modalmark"><i data-lucide="shield-check" width="21"></i></div>
+    <h2>Truy cập hệ thống</h2><p>Vui lòng chọn vai trò của bạn</p>
+    <div class="rolegrid">
+      <button class="rolechoice" onclick="pickRole('teacher')"><b>Giáo Viên</b><span>Xem lịch dạy và xác nhận từng buổi</span></button>
+      <button class="rolechoice" onclick="pickRole('manager')"><b>Quản Lý</b><span>Duyệt lịch và tiếp nhận phản hồi</span></button>
+    </div>
+    <div class="teacherpick hidden" id="teacherPick"><div style="font-size:8px;font-weight:750;margin-bottom:6px">Chọn giáo viên</div><select class="select" id="teacherSelect"></select><button class="btn primary" style="width:100%;margin-top:9px" onclick="confirmTeacher()">Vào hệ thống</button></div>
+  </div>
+</div>
+<div class="modal hidden" id="cancelModal">
+  <div class="cancel-modal-card">
+    <h3>Ghi nhận lớp nghỉ</h3>
+    <p>Nhập lý do nghỉ. Sau khi lưu, buổi này sẽ không được tính vào số buổi đã dạy hoặc lương.</p>
+    <div class="cancel-summary" id="cancelSummary"></div>
+    <input type="hidden" id="cancelTemplateId">
+    <input type="hidden" id="cancelDateISO">
+    <div class="field"><label>Lý do nghỉ</label><textarea class="textarea" id="cancelReason" placeholder="VD: Học viên xin nghỉ, trung tâm nghỉ lễ, giáo viên có việc..."></textarea></div>
+    <div class="cancel-actions">
+      <button class="btn secondary" onclick="closeCancelModal()">Hủy</button>
+      <button class="btn primary" onclick="submitCancelClass()">Xác nhận nghỉ</button>
+    </div>
+  </div>
+</div>
+<div class="cloud-auth-modal hidden" id="cloudAuthModal">
+  <div class="cloud-auth-card">
+    <div class="modalmark"><i data-lucide="cloud" width="21"></i></div>
+    <h2>Đăng nhập Cloud Sync</h2>
+    <p>Đăng nhập một lần trên thiết bị này để lịch, xác nhận, nghỉ lớp, phản hồi, Wi‑Fi, lương và thông báo được đồng bộ giữa tất cả thiết bị.</p>
+    <div class="cloud-auth-fields">
+      <div class="field"><label>Email Supabase</label><input class="input" id="cloudEmail" type="email" autocomplete="username" placeholder="portal@trungtam.com"></div>
+      <div class="field"><label>Mật khẩu</label><input class="input" id="cloudPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="btn primary" style="width:100%" onclick="cloudLogin()"><i data-lucide="log-in" width="13"></i>Đăng nhập & Đồng bộ</button>
+    </div>
+    <div class="cloud-auth-status" id="cloudAuthStatus">Đang kết nối Supabase…</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE='aba_schedule_portal_v5',OLD='aba_schedule_portal_v4',ROLE='aba_portal_role_v5';
+const DAY_INDEX={'Thứ 2':0,'Thứ 3':1,'Thứ 4':2,'Thứ 5':3,'Thứ 6':4,'Thứ 7':5,'Chủ nhật':6};
+const SHIFT_ORDER={'Sáng':0,'Chiều':1,'Tối':2};
+const STARTER=[['Thứ 2','Tối','Cô Liên','Tầng 1'],['Thứ 2','Tối','Cô Huyền','301'],['Thứ 3','Tối','Cô Thu','401'],['Thứ 4','Tối','Cô Liên','Tầng 1'],['Thứ 5','Tối','Cô Huyền','301'],['Thứ 6','Tối','Cô Thu','401'],['Thứ 7','Chiều','Cô Huyền','301'],['Chủ nhật','Sáng','Cô Thuần','Tầng 1']];
+function uid(){return crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(16).slice(2)}
+function isoLocal(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function safe(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function viDate(d){return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function dayName(d){return d.toLocaleDateString('vi-VN',{weekday:'long'})}
+function monthName(d){return 'Tháng '+(d.getMonth()+1)+' / '+d.getFullYear()}
+function active(t,dateISO){return(!t.validFrom||dateISO>=t.validFrom)&&(!t.validTo||dateISO<=t.validTo)}
+function occKey(t,dateISO){return t.id+'__'+dateISO}
+
+const DAY_NAMES=['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật'];
+function fromISO(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)}
+function dayFromISO(dateISO){const d=fromISO(dateISO);return DAY_NAMES[(d.getDay()+6)%7]}
+function applyOccurrenceOverride(base,dateISO){
+  const ov=data.monthlyOverrides?.[occKey(base,dateISO)]||{};
+  if(ov.deleted)return null;
+  return {...base,...ov,dateISO,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'template',conf:data.confirmations[occKey(base,dateISO)]||{}};
+}
+function monthlyExactOccurrences(dateISO){
+  return (data.monthlyAdditions||[]).filter(x=>x.dateISO===dateISO).map(x=>({...x,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'monthly',conf:data.confirmations[occKey(x,dateISO)]||{}}));
+}
+function findOccurrence(id,dateISO){
+  const add=(data.monthlyAdditions||[]).find(x=>x.id===id&&x.dateISO===dateISO);
+  if(add)return {...add,date:fromISO(dateISO),day:dayFromISO(dateISO),sourceType:'monthly',conf:data.confirmations[occKey(add,dateISO)]||{}};
+  const base=data.templates.find(x=>x.id===id);
+  return base?applyOccurrenceOverride(base,dateISO):null;
+}
+
+function seed(){return {version:5,settings:{centerName:'ABA Learning Portal',shifts:{'Sáng':'07:30 – 11:30','Chiều':'13:30 – 17:30','Tối':'18:00 – 21:00'},wifis:[{id:uid(),floor:'Tầng 1',ssid:'ABA Teacher',password:'ABA@2026',security:'WPA',note:'Mạng Wi‑Fi dành cho giáo viên'}]},managerShiftRate:0,salaryRates:{},templates:STARTER.map(r=>({id:uid(),day:r[0],shift:r[1],teacher:r[2],room:r[3],detail:'',validFrom:'2020-01-01',validTo:null})),confirmations:{},notifications:[{id:uid(),title:'Chào mừng đến ABA Learning Portal',message:'Hệ thống đã sẵn sàng để theo dõi lịch dạy theo tháng.',targetType:'all',targetValue:'',createdAt:new Date().toISOString(),type:'system'}],feedback:[],salaryAdjustments:{},cancellations:{},monthlyOverrides:{},monthlyAdditions:[],audit:[]}}
+function migrate(old){const d=seed();d.templates=old.templates||d.templates;d.confirmations=old.confirmations||{};d.notifications=(old.notifications||[]).map(n=>({...n,targetType:n.targetType||'all',targetValue:n.targetValue||''}));d.settings={...d.settings,...(old.settings||{})};d.feedback=old.feedback||[];d.salaryAdjustments=old.salaryAdjustments||{};d.cancellations=old.cancellations||{};d.audit=old.audit||[];return d}
+function ensureExtras(d){d.settings=d.settings||{};d.settings.salaryRates=d.settings.salaryRates||{};d.settings.managerShiftRate=Number(d.settings.managerShiftRate||0);d.salaryAdjustments=d.salaryAdjustments||{};d.cancellations=d.cancellations||{};d.monthlyOverrides=d.monthlyOverrides||{};d.monthlyAdditions=d.monthlyAdditions||[];d.audit=d.audit||[];return d}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||'null');if(x&&x.templates)return ensureExtras(x)}catch(e){}try{const o=JSON.parse(localStorage.getItem(OLD)||'null');if(o&&o.templates){const d=ensureExtras(migrate(o));save(d);return d}}catch(e){}const d=ensureExtras(seed());save(d);return d}
+function save(d){localStorage.setItem(STORE,JSON.stringify(d));queueCloudSave(d)}
+
+/* ===== SUPABASE CLOUD SYNC V20 ===== */
+let ABA_SB=null, ABA_SB_USER=null, ABA_CLOUD_READY=false, ABA_CLOUD_BASE=null, ABA_CLOUD_VERSION=0;
+let ABA_CLOUD_SAVE_TIMER=null, ABA_CLOUD_SAVING=false, ABA_CLOUD_PENDING=null, ABA_CLOUD_CHANNEL=null;
+const ABA_CLOUD_ROW_ID=1;
+
+function deepClone(v){return JSON.parse(JSON.stringify(v??null))}
+function setCloudBadge(state,text){
+  if(!window.cloudSyncBadge||!window.cloudSyncText)return;
+  cloudSyncBadge.classList.remove('online','syncing');
+  if(state)cloudSyncBadge.classList.add(state);
+  cloudSyncText.textContent=text||'Cloud';
+}
+function arrayById(arr){const m=new Map();(arr||[]).forEach(x=>{if(x&&x.id!=null)m.set(String(x.id),deepClone(x))});return m}
+function mergeArrayById(latest,local,base){
+  const out=arrayById(latest), localMap=arrayById(local), baseMap=arrayById(base);
+  for(const id of baseMap.keys())if(!localMap.has(id))out.delete(id);
+  for(const [id,v] of localMap)out.set(id,v);
+  return [...out.values()];
+}
+function mergeMap(latest,local,base){
+  const out={...(latest||{})},l=local||{},b=base||{};
+  for(const k of Object.keys(b))if(!(k in l))delete out[k];
+  for(const [k,v] of Object.entries(l))out[k]=deepClone(v);
+  return out;
+}
+function mergeNestedMap(latest,local,base){
+  const out={...(latest||{})},l=local||{},b=base||{};
+  for(const k of Object.keys(b))if(!(k in l))delete out[k];
+  for(const k of Object.keys(l))out[k]=mergeMap((latest||{})[k],l[k],(base||{})[k]);
+  return out;
+}
+function mergeSettings(latest,local,base){
+  const out={...(latest||{}),...(local||{})};
+  out.wifis=mergeArrayById((latest||{}).wifis,(local||{}).wifis,(base||{}).wifis);
+  out.salaryRates=mergeMap((latest||{}).salaryRates,(local||{}).salaryRates,(base||{}).salaryRates);
+  return out;
+}
+function mergeCloudState(latest,local,base){
+  latest=latest||{};local=local||{};base=base||{};
+  return {
+    ...latest,
+    ...local,
+    settings:mergeSettings(latest.settings,local.settings,base.settings),
+    templates:mergeArrayById(latest.templates,local.templates,base.templates),
+    confirmations:mergeMap(latest.confirmations,local.confirmations,base.confirmations),
+    notifications:mergeArrayById(latest.notifications,local.notifications,base.notifications),
+    feedback:mergeArrayById(latest.feedback,local.feedback,base.feedback),
+    cancellations:mergeMap(latest.cancellations,local.cancellations,base.cancellations),
+    monthlyOverrides:mergeMap(latest.monthlyOverrides,local.monthlyOverrides,base.monthlyOverrides),
+    monthlyAdditions:mergeArrayById(latest.monthlyAdditions,local.monthlyAdditions,base.monthlyAdditions),
+    salaryAdjustments:mergeNestedMap(latest.salaryAdjustments,local.salaryAdjustments,base.salaryAdjustments),
+    audit:mergeArrayById(latest.audit,local.audit,base.audit)
+  };
+}
+function localStateMeaningful(x){return !!(x&&Array.isArray(x.templates)&&x.templates.length)}
+function applyCloudState(remote,version=0){
+  if(!localStateMeaningful(remote))return;
+  ABA_CLOUD_BASE=deepClone(remote);ABA_CLOUD_VERSION=Number(version||0);
+  localStorage.setItem(STORE,JSON.stringify(remote));
+  data=ensureExtras(remote);
+  setCloudBadge('online','Đã đồng bộ');
+  if(typeof render==='function')render();
+  else if(typeof renderAll==='function')renderAll();
+}
+async function getCloudRow(){
+  const {data:row,error}=await ABA_SB.from('aba_app_state').select('id,data,version,updated_at,updated_by').eq('id',ABA_CLOUD_ROW_ID).single();
+  if(error)throw error;
+  return row;
+}
+async function bootstrapCloudIfNeeded(){
+  const row=await getCloudRow();
+  if(localStateMeaningful(row.data)){
+    applyCloudState(row.data,row.version);return;
+  }
+  const local=ensureExtras(load());
+  if(location.pathname.toLowerCase().includes('admin')){
+    setCloudBadge('syncing','Khởi tạo Cloud…');
+    const {data:updated,error}=await ABA_SB.from('aba_app_state')
+      .update({data:local,version:Number(row.version||0)+1,updated_at:new Date().toISOString(),updated_by:ABA_SB_USER.id})
+      .eq('id',ABA_CLOUD_ROW_ID).select('data,version').single();
+    if(error)throw error;
+    applyCloudState(updated.data,updated.version);
+  }else{
+    ABA_CLOUD_BASE=deepClone(local);ABA_CLOUD_VERSION=Number(row.version||0);
+    setCloudBadge('syncing','Chờ Admin khởi tạo');
+    toast('Cloud chưa có dữ liệu. Hãy mở Admin đăng nhập trước để khởi tạo.');
+  }
+}
+async function pushCloudState(localSnapshot){
+  if(!ABA_CLOUD_READY||!ABA_SB||!ABA_SB_USER){ABA_CLOUD_PENDING=deepClone(localSnapshot);return}
+  if(ABA_CLOUD_SAVING){ABA_CLOUD_PENDING=deepClone(localSnapshot);return}
+  ABA_CLOUD_SAVING=true;setCloudBadge('syncing','Đang đồng bộ…');
+  try{
+    const row=await getCloudRow();
+    const latest=ensureExtras(row.data||{});
+    const merged=ensureExtras(mergeCloudState(latest,localSnapshot,ABA_CLOUD_BASE||latest));
+    const {data:updated,error}=await ABA_SB.from('aba_app_state')
+      .update({data:merged,version:Number(row.version||0)+1,updated_at:new Date().toISOString(),updated_by:ABA_SB_USER.id})
+      .eq('id',ABA_CLOUD_ROW_ID).select('data,version').single();
+    if(error)throw error;
+    ABA_CLOUD_BASE=deepClone(updated.data);ABA_CLOUD_VERSION=Number(updated.version||0);
+    localStorage.setItem(STORE,JSON.stringify(updated.data));
+    data=ensureExtras(updated.data);
+    setCloudBadge('online','Đã đồng bộ');
+  }catch(e){
+    console.error('Cloud save',e);setCloudBadge('','Lỗi đồng bộ');
+  }finally{
+    ABA_CLOUD_SAVING=false;
+    if(ABA_CLOUD_PENDING){
+      const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;
+      setTimeout(()=>pushCloudState(p),80);
+    }
+  }
+}
+function queueCloudSave(d){
+  if(!ABA_CLOUD_READY){ABA_CLOUD_PENDING=deepClone(d);return}
+  clearTimeout(ABA_CLOUD_SAVE_TIMER);
+  const snap=deepClone(d);
+  ABA_CLOUD_SAVE_TIMER=setTimeout(()=>pushCloudState(snap),120);
+}
+async function connectCloudRealtime(){
+  if(ABA_CLOUD_CHANNEL)try{await ABA_SB.removeChannel(ABA_CLOUD_CHANNEL)}catch(e){}
+  ABA_CLOUD_CHANNEL=ABA_SB.channel('aba-state-sync')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'aba_app_state',filter:'id=eq.1'},payload=>{
+      const row=payload.new||{};
+      if(!localStateMeaningful(row.data))return;
+      const incomingVersion=Number(row.version||0);
+      if(incomingVersion<ABA_CLOUD_VERSION)return;
+      applyCloudState(row.data,incomingVersion);
+    }).subscribe(status=>{
+      if(status==='SUBSCRIBED')setCloudBadge('online','Realtime Online');
+    });
+}
+async function initSupabaseCloud(){
+  setCloudBadge('syncing','Kết nối Cloud…');
+  try{
+    const r=await fetch('/.netlify/functions/supabase-config',{cache:'no-store'});
+    const cfg=await r.json();
+    if(!cfg.url||!cfg.publishableKey)throw new Error('Chưa cấu hình SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY');
+    ABA_SB=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data:{session:sess}}=await ABA_SB.auth.getSession();
+    if(!sess){cloudAuthModal.classList.remove('hidden');cloudAuthStatus.textContent='Nhập tài khoản Supabase để bật đồng bộ.';setCloudBadge('','Chưa đăng nhập');return}
+    ABA_SB_USER=sess.user;cloudAuthModal.classList.add('hidden');
+    ABA_CLOUD_READY=true;
+    await bootstrapCloudIfNeeded();
+    await connectCloudRealtime();
+    if(ABA_CLOUD_PENDING){const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;queueCloudSave(p)}
+  }catch(e){
+    console.error(e);cloudAuthModal.classList.remove('hidden');cloudAuthStatus.textContent='Lỗi Cloud: '+e.message;setCloudBadge('','Lỗi Cloud');
+  }
+}
+async function cloudLogin(){
+  if(!ABA_SB)return cloudAuthStatus.textContent='Supabase chưa khởi tạo.';
+  const email=cloudEmail.value.trim(),password=cloudPassword.value;
+  if(!email||!password)return cloudAuthStatus.textContent='Nhập email và mật khẩu.';
+  cloudAuthStatus.textContent='Đang đăng nhập…';
+  const {data:res,error}=await ABA_SB.auth.signInWithPassword({email,password});
+  if(error)return cloudAuthStatus.textContent='Đăng nhập lỗi: '+error.message;
+  ABA_SB_USER=res.user;ABA_CLOUD_READY=true;cloudAuthModal.classList.add('hidden');
+  await bootstrapCloudIfNeeded();await connectCloudRealtime();
+  if(ABA_CLOUD_PENDING){const p=ABA_CLOUD_PENDING;ABA_CLOUD_PENDING=null;queueCloudSave(p)}
+}
+async function cloudLogout(){
+  if(ABA_SB)await ABA_SB.auth.signOut();
+  ABA_CLOUD_READY=false;ABA_SB_USER=null;setCloudBadge('','Đã đăng xuất');
+  cloudAuthModal.classList.remove('hidden');
+}
+async function sendUserEventPush(type,payload={}){
+  if(!ABA_SB)return;
+  try{
+    const {data:{session:sess}}=await ABA_SB.auth.getSession();if(!sess?.access_token)return;
+    await fetch('/.netlify/functions/event-push',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},
+      body:JSON.stringify({type,...payload})
+    });
+  }catch(e){console.warn('event push',e)}
+}
+
+let data=load(),session=JSON.parse(localStorage.getItem(ROLE)||'null')||{role:'',teacher:''},viewMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1,12);
+
+function populateTeachers(){const all=[...data.templates.map(x=>x.teacher),...(data.monthlyAdditions||[]).map(x=>x.teacher),...Object.values(data.monthlyOverrides||{}).map(x=>x.teacher)].filter(Boolean);const names=[...new Set(all)].sort((a,b)=>a.localeCompare(b,'vi'));teacherSelect.innerHTML=names.map(x=>`<option>${safe(x)}</option>`).join('')}
+function openRole(){populateTeachers();roleModal.classList.remove('hidden')}
+function closeRole(){if(session.role)roleModal.classList.add('hidden')}
+function pickRole(r){if(r==='manager'){session={role:'manager',teacher:''};localStorage.setItem(ROLE,JSON.stringify(session));syncOneSignalIdentity();closeRole();showScreen('schedule');render();toast('Đã vào vai trò Quản lý')}else{teacherPick.classList.remove('hidden');populateTeachers()}}
+function confirmTeacher(){const t=teacherSelect.value;if(!t)return;session={role:'teacher',teacher:t};localStorage.setItem(ROLE,JSON.stringify(session));syncOneSignalIdentity();closeRole();showScreen('schedule');render();toast('Đang xem hệ thống của '+t)}
+
+function showScreen(id,btn){if(id==='salary'&&session.role!=='manager')id='schedule';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));const b=btn||document.querySelector(`.nav button[data-screen="${id}"]`);if(b)b.classList.add('active');pageTitle.textContent={schedule:'Lịch tháng',salary:'Tính lương',notifications:'Thông báo',feedback:session.role==='manager'?'Phản hồi giáo viên':'Gửi phản hồi',wifi:'Wi‑Fi giáo viên'}[id]||'ABA Portal';if(window.lucide)lucide.createIcons()}
+function cycleScreen(){const ids=session.role==='manager'?['schedule','salary','notifications','feedback','wifi']:['schedule','notifications','feedback','wifi'];const cur=ids.findIndex(id=>document.getElementById(id).classList.contains('active'));showScreen(ids[(cur+1)%ids.length])}
+
+function monthData(){
+  const first=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1,12),last=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,0,12),days=[];
+  for(let d=new Date(first);d<=last;d=addDays(d,1)){
+    const dateISO=isoLocal(d),di=(d.getDay()+6)%7,items=[];
+    for(const t of data.templates){
+      if(DAY_INDEX[t.day]!==di||!active(t,dateISO))continue;
+      const o=applyOccurrenceOverride(t,dateISO);if(!o)continue;
+      if(session.role==='teacher'&&session.teacher&&o.teacher!==session.teacher)continue;
+      items.push(o);
+    }
+    for(const o of monthlyExactOccurrences(dateISO)){
+      if(session.role==='teacher'&&session.teacher&&o.teacher!==session.teacher)continue;
+      items.push(o);
+    }
+    items.sort((a,b)=>(SHIFT_ORDER[a.shift]??9)-(SHIFT_ORDER[b.shift]??9)||a.teacher.localeCompare(b.teacher,'vi'));
+    days.push({date:new Date(d),dateISO,items});
+  }
+  return days
+}
+function sessionAction(o){
+  const cancel=data.cancellations?.[occKey(o,o.dateISO)];
+  if(cancel)return `<div><div class="offbox">Nghỉ<span class="offreason">${safe(cancel.reason||'Không có lý do')}</span></div>${session.role==='manager'?`<button class="restore-btn" onclick="restoreClass('${o.id}','${o.dateISO}')">Khôi phục buổi</button>`:''}</div>`;
+  if(session.role==='teacher'){return o.conf.teacherConfirmed?'<div class="confirmed">Đã xác nhận</div>':`<button class="confirm" onclick="confirmOcc('${o.id}','${o.dateISO}','teacher')">Xác nhận</button>`}
+  if(session.role==='manager'){if(o.conf.managerConfirmed)return`<div class="manager-actions"><div class="confirmed">Đã xác nhận</div><button class="cancel-btn" onclick="openCancelModal('${o.id}','${o.dateISO}')">Cho nghỉ</button></div>`;return`<div class="manager-actions"><button class="confirm manager" ${o.conf.teacherConfirmed?'':'disabled style="opacity:.35"'} onclick="confirmOcc('${o.id}','${o.dateISO}','manager')">Xác nhận</button><button class="cancel-btn" onclick="openCancelModal('${o.id}','${o.dateISO}')">Cho nghỉ</button></div>`}
+  return''
+}
+function openCancelModal(id,dateISO){
+  if(session.role!=='manager')return;
+  data=load();const t=findOccurrence(id,dateISO);if(!t)return;
+  cancelTemplateId.value=id;cancelDateISO.value=dateISO;cancelReason.value='';
+  cancelSummary.textContent=`${dateISO} · ${t.shift} · ${t.teacher} · ${t.room}`;
+  cancelModal.classList.remove('hidden');setTimeout(()=>cancelReason.focus(),50)
+}
+function closeCancelModal(){
+  cancelModal.classList.add('hidden');cancelReason.value=''
+}
+function submitCancelClass(){
+  if(session.role!=='manager')return;
+  const id=cancelTemplateId.value,dateISO=cancelDateISO.value,reason=cancelReason.value.trim();
+  if(!reason)return toast('Cần nhập lý do nghỉ');
+  data=load();const t=findOccurrence(id,dateISO);if(!t)return;
+  const k=occKey(t,dateISO);data.cancellations=data.cancellations||{};
+  data.cancellations[k]={reason,createdAt:new Date().toISOString(),createdBy:'manager'};
+  if(data.confirmations[k])delete data.confirmations[k];
+  data.notifications.unshift({id:uid(),title:'Thông báo nghỉ lớp',message:`${dateISO} · ${t.shift} · ${t.teacher} nghỉ. Lý do: ${reason}`,targetType:'teacher',targetValue:t.teacher,createdAt:new Date().toISOString(),type:'system'});
+  data.audit.unshift({id:uid(),action:'Cho lớp nghỉ',detail:`${dateISO} · ${t.teacher} · ${t.shift} · ${reason}`,createdAt:new Date().toISOString()});
+  save(data);closeCancelModal();render();sendUserEventPush('class_canceled',{teacher:t.teacher,dateISO,shift:t.shift,reason});toast('Đã ghi nhận buổi nghỉ')
+}
+function restoreClass(id,dateISO){
+  if(session.role!=='manager')return;
+  data=load();const t=findOccurrence(id,dateISO);if(!t)return;const k=occKey(t,dateISO);
+  if(!data.cancellations?.[k])return;delete data.cancellations[k];
+  data.notifications.unshift({id:uid(),title:'Buổi học được khôi phục',message:`${dateISO} · ${t.shift} · ${t.teacher} đã được đưa trở lại lịch dạy.`,targetType:'teacher',targetValue:t.teacher,createdAt:new Date().toISOString(),type:'system'});
+  data.audit.unshift({id:uid(),action:'Khôi phục buổi học',detail:`${dateISO} · ${t.teacher} · ${t.shift}`,createdAt:new Date().toISOString()});
+  save(data);render();sendUserEventPush('class_restored',{teacher:t.teacher,dateISO,shift:t.shift});toast('Đã khôi phục buổi học')
+}
+function confirmOcc(id,dateISO,who){data=load();const t=data.templates.find(x=>x.id===id);if(!t)return;const k=occKey(t,dateISO);if(data.cancellations?.[k])return toast('Buổi này đã nghỉ');const c=data.confirmations[k]||{};
+  if(who==='teacher'){if(session.role!=='teacher'||session.teacher!==t.teacher)return;c.teacherConfirmed=true;c.teacherConfirmedAt=new Date().toISOString();data.notifications.unshift({id:uid(),title:'Giáo viên đã xác nhận lịch',message:`${dateISO} · ${t.shift} · ${t.teacher} · Phòng ${t.room}`,targetType:'managers',targetValue:'',createdAt:new Date().toISOString(),type:'system'})}
+  else{if(session.role!=='manager'||!c.teacherConfirmed)return;c.managerConfirmed=true;c.managerConfirmedAt=new Date().toISOString()}
+  data.confirmations[k]=c;data.audit.unshift({id:uid(),action:who==='teacher'?'Giáo viên xác nhận':'Quản lý xác nhận',detail:`${dateISO} · ${t.teacher} · ${t.shift}`,createdAt:new Date().toISOString()});save(data);render();
+  if(who==='teacher')sendUserEventPush('teacher_confirmed',{teacher:t.teacher,dateISO,shift:t.shift,room:t.room});
+  else sendUserEventPush('manager_confirmed',{teacher:t.teacher,dateISO,shift:t.shift,room:t.room});
+  toast('Đã xác nhận')
+}
+function renderSchedule(){monthLabel.textContent=monthName(viewMonth);scheduleTitle.textContent=session.role==='teacher'&&session.teacher?`Lịch tháng của ${session.teacher}`:'Lịch toàn trung tâm';const today=isoLocal(new Date());const days=monthData();monthList.innerHTML=days.map(d=>`<section class="daygroup"><div class="dayhead ${d.dateISO===today?'today':''}"><div class="datebox"><b>${viDate(d.date)}</b><span>${safe(dayName(d.date))}${d.dateISO===today?' · Hôm nay':''}</span></div><div class="daynote">${d.items.length?d.items.length+' buổi':'Không có lịch'}</div></div><div class="sessions">${d.items.length?d.items.map(o=>`<article class="session ${data.cancellations?.[occKey(o,o.dateISO)]?'off-session':''}"><div class="time"><div class="label">Ca</div><div class="value">${safe(o.shift)}</div></div><div class="who"><div class="label">Giảng viên</div><div class="value">${safe(o.teacher)}</div><div class="subvalue"><b>Phòng:</b> ${safe(o.room)}${o.detail?' · '+safe(o.detail):''}</div></div><div>${sessionAction(o)}</div></article>`).join(''):'<div class="no-class">Không có buổi dạy.</div>'}</div></section>`).join('')}
+
+function noticeVisible(n){if(n.targetType==='all')return true;if(n.targetType==='teachers')return session.role==='teacher';if(n.targetType==='managers')return session.role==='manager';if(n.targetType==='teacher')return session.role==='teacher'&&session.teacher===n.targetValue;return false}
+let ABA_ONE_SIGNAL=null;
+let ABA_PUSH_CONFIG=null;
+
+function teacherExternalId(name){return 'teacher:'+encodeURIComponent(String(name||'').trim())}
+
+async function initOneSignalPush(){
+  try{
+    const r=await fetch('/.netlify/functions/push-config',{cache:'no-store'});
+    const cfg=await r.json();
+    ABA_PUSH_CONFIG=cfg;
+    if(!cfg.appId){updateNativeNotifyButton('setup');return}
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
+    window.OneSignalDeferred.push(async function(OneSignal){
+      try{
+        await OneSignal.init({
+          appId:cfg.appId,
+          serviceWorkerPath:'/OneSignalSDKWorker.js',
+          serviceWorkerParam:{scope:'/'},
+          notifyButton:{enable:false}
+        });
+        ABA_ONE_SIGNAL=OneSignal;
+        await syncOneSignalIdentity();
+        updateNativeNotifyButton();
+      }catch(e){
+        console.error('OneSignal init',e);
+        updateNativeNotifyButton('error');
+      }
+    });
+  }catch(e){
+    console.error('Push config',e);
+    updateNativeNotifyButton('error');
+  }
+}
+
+async function syncOneSignalIdentity(){
+  if(!ABA_ONE_SIGNAL||!session?.role)return;
+  try{
+    if(session.role==='teacher'&&session.teacher){
+      await ABA_ONE_SIGNAL.login(teacherExternalId(session.teacher));
+      ABA_ONE_SIGNAL.User.addTags({role:'teacher',teacher:session.teacher});
+    }else if(session.role==='manager'){
+      await ABA_ONE_SIGNAL.login('manager:main');
+      ABA_ONE_SIGNAL.User.addTags({role:'manager'});
+    }
+  }catch(e){console.error('OneSignal identity',e)}
+}
+
+function updateNativeNotifyButton(state=''){
+  if(!window.nativeNotifyBtn)return;
+  if(state==='setup'){
+    nativeNotifyBtn.classList.remove('native-notify-on');
+    nativeNotifyBtn.querySelector('span').textContent='Push chưa cấu hình';
+    return;
+  }
+  if(state==='error'){
+    nativeNotifyBtn.classList.remove('native-notify-on');
+    nativeNotifyBtn.querySelector('span').textContent='Lỗi Push';
+    return;
+  }
+  const on=!!(ABA_ONE_SIGNAL&&ABA_ONE_SIGNAL.Notifications.permission&&ABA_ONE_SIGNAL.User.PushSubscription.optedIn);
+  nativeNotifyBtn.classList.toggle('native-notify-on',on);
+  nativeNotifyBtn.querySelector('span').textContent=on?'Push đã bật':'Bật thông báo Push';
+}
+
+async function enableNativeNotifications(){
+  if(!ABA_ONE_SIGNAL){
+    if(!ABA_PUSH_CONFIG?.appId)return toast('Push chưa được cấu hình trên Netlify/OneSignal');
+    return toast('Dịch vụ Push đang khởi tạo, thử lại sau vài giây');
+  }
+  try{
+    await syncOneSignalIdentity();
+    await ABA_ONE_SIGNAL.Notifications.requestPermission();
+    if(ABA_ONE_SIGNAL.Notifications.permission){
+      await ABA_ONE_SIGNAL.User.PushSubscription.optIn();
+      await syncOneSignalIdentity();
+      updateNativeNotifyButton();
+      toast('Đã bật Push: vẫn nhận khi đóng website');
+    }else toast('Bạn chưa cấp quyền thông báo');
+  }catch(e){
+    console.error(e);toast('Không bật được Push trên thiết bị này');
+  }
+}
+
+// Web Push thật do OneSignal xử lý; không tạo thêm Notification local để tránh báo trùng.
+function scanNativeNotifications(){updateNativeNotifyButton()}
+
+function renderNotices(){const list=(data.notifications||[]).filter(noticeVisible).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));noticeCount.textContent=list.length;noticeList.innerHTML=list.length?list.map(n=>`<div class="notice"><span class="noticeicon"><i data-lucide="bell" width="14"></i></span><div><b>${safe(n.title)}</b><p>${safe(n.message)}</p><time>${new Date(n.createdAt).toLocaleString('vi-VN')}</time></div></div>`).join(''):'<div class="empty">Hiện chưa có thông báo dành cho bạn.</div>';scanNativeNotifications(list)}
+function sendFeedback(){if(session.role!=='teacher'||!session.teacher)return toast('Chỉ giáo viên gửi phản hồi ở mục này');const message=fbMessage.value.trim();if(!message)return toast('Bạn chưa nhập nội dung');const item={id:uid(),teacher:session.teacher,destination:fbDestination.value,topic:fbTopic.value,message,status:'new',createdAt:new Date().toISOString(),resolvedAt:null};data.feedback.unshift(item);data.notifications.unshift({id:uid(),title:'Đã ghi nhận phản hồi',message:`Phản hồi "${item.topic}" đã được hệ thống tiếp nhận${item.destination==='manager'?' và chuyển tới Quản lý':''}.`,targetType:'teacher',targetValue:session.teacher,createdAt:new Date().toISOString(),type:'system'});data.audit.unshift({id:uid(),action:'Gửi phản hồi',detail:`${session.teacher} → ${item.destination}`,createdAt:new Date().toISOString()});save(data);fbMessage.value='';render();toast('Đã gửi phản hồi')}
+function renderFeedback(){teacherFeedback.classList.toggle('hidden',session.role!=='teacher');managerFeedback.classList.toggle('hidden',session.role!=='manager');
+  if(session.role==='teacher'){const list=(data.feedback||[]).filter(x=>x.teacher===session.teacher);myFeedback.innerHTML=list.length?list.map(x=>`<div class="ticket"><div class="tickettop"><b>${safe(x.topic)}</b><span class="tag ${x.status==='resolved'?'ok':''}">${x.status==='resolved'?'Đã xử lý':'Đã ghi nhận'}</span></div><p>${safe(x.message)}</p><div style="font-size:11px;color:#9aa1ac">Gửi ${x.destination==='manager'?'Quản lý':'Hệ thống'} · ${new Date(x.createdAt).toLocaleString('vi-VN')}</div></div>`).join(''):'<div class="empty">Bạn chưa gửi phản hồi nào.</div>'}
+  if(session.role==='manager'){const list=(data.feedback||[]).filter(x=>x.destination==='manager');managerFeedbackList.innerHTML=list.length?list.map(x=>`<div class="ticket"><div class="tickettop"><b>${safe(x.teacher)} · ${safe(x.topic)}</b><span class="tag ${x.status==='resolved'?'ok':''}">${x.status==='resolved'?'Đã xử lý':'Mới'}</span></div><p>${safe(x.message)}</p><div style="font-size:11px;color:#9aa1ac">${new Date(x.createdAt).toLocaleString('vi-VN')}</div></div>`).join(''):'<div class="empty">Chưa có phản hồi gửi tới Quản lý.</div>'}
+}
+function wifiListData(){
+  const s=data.settings||{};
+  if(Array.isArray(s.wifis))return s.wifis;
+  if(s.wifi&&s.wifi.ssid)return [{id:'legacy-wifi',floor:'Tầng 1',ssid:s.wifi.ssid,password:s.wifi.password||'',security:'WPA',note:s.wifi.note||''}];
+  return [];
+}
+function wifiEscape(v){return String(v??'').replace(/([\;,:"])/g,'\$1')}
+function wifiQrText(w){
+  const type=(w.security||'WPA').toUpperCase()==='OPEN'?'nopass':'WPA';
+  return type==='nopass'
+    ?`WIFI:T:nopass;S:${wifiEscape(w.ssid)};;`
+    :`WIFI:T:WPA;S:${wifiEscape(w.ssid)};P:${wifiEscape(w.password||'')};;`
+}
+function renderWifi(){
+  const list=wifiListData();
+  wifiList.innerHTML=list.length?list.map((w,i)=>`<article class="wifi-card">
+    <div>
+      <div class="wifi-floor"><i data-lucide="building-2" width="13"></i>${safe(w.floor||('Khu vực '+(i+1)))}</div>
+      <h3>${safe(w.ssid||'Chưa đặt tên Wi‑Fi')}</h3>
+      <p>${safe(w.note||'Quét mã QR bên cạnh để kết nối Wi‑Fi.')}</p>
+      <div class="wifi-pass-label">Mật khẩu</div>
+      <div class="wifi-pass">${safe(w.password||'Không có mật khẩu')}</div>
+      <div class="wifi-actions">
+        <button class="btn secondary" onclick="copyWifiPassword(${i})"><i data-lucide="copy" width="13"></i>Sao chép mật khẩu</button>
+      </div>
+    </div>
+    <div class="qr-wrap">
+      <div class="qr-box" id="wifiQr${i}"></div>
+      <div class="qr-hint">Mở Camera → quét QR → chọn kết nối Wi‑Fi</div>
+    </div>
+  </article>`).join(''):'<div class="card"><div class="empty">Admin chưa thiết lập Wi‑Fi cho trung tâm.</div></div>';
+  if(window.QRCode){
+    list.forEach((w,i)=>{
+      const el=document.getElementById('wifiQr'+i);
+      if(el)new QRCode(el,{text:wifiQrText(w),width:160,height:160,correctLevel:QRCode.CorrectLevel.M});
+    });
+  }
+}
+async function copyWifiPassword(i){
+  const w=wifiListData()[i];if(!w||!w.password)return toast('Mạng này không có mật khẩu');
+  try{await navigator.clipboard.writeText(w.password);toast('Đã sao chép mật khẩu')}catch(e){toast('Không thể sao chép tự động')}
+}
+
+function salaryMonthKey(){return viewMonth.getFullYear()+'-'+String(viewMonth.getMonth()+1).padStart(2,'0')}
+function money(v){return Math.round(Number(v)||0).toLocaleString('vi-VN')+' ₫'}
+function allMonthOccurrences(){
+  const first=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1,12),last=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,0,12),out=[];
+  for(let d=new Date(first);d<=last;d=addDays(d,1)){
+    const dateISO=isoLocal(d),di=(d.getDay()+6)%7;
+    for(const t of data.templates){
+      if(DAY_INDEX[t.day]!==di||!active(t,dateISO))continue;
+      const o=applyOccurrenceOverride(t,dateISO);if(o)out.push(o);
+    }
+    out.push(...monthlyExactOccurrences(dateISO));
+  }
+  return out;
+}
+function managerSalaryShifts(){
+  const all=allMonthOccurrences(),groups=new Map();
+  for(const o of all){
+    const groupKey=o.dateISO+'__'+o.shift;
+    if(!groups.has(groupKey))groups.set(groupKey,{key:groupKey,dateISO:o.dateISO,date:o.date,day:o.day,shift:o.shift,totalClasses:0,fullyConfirmed:0});
+    const g=groups.get(groupKey);g.totalClasses++;
+    const canceled=!!data.cancellations?.[occKey(o,o.dateISO)];
+    if(!canceled&&o.conf.teacherConfirmed&&o.conf.managerConfirmed)g.fullyConfirmed++;
+  }
+  return [...groups.values()].filter(g=>g.fullyConfirmed>0).sort((a,b)=>a.date-b.date||(SHIFT_ORDER[a.shift]??9)-(SHIFT_ORDER[b.shift]??9));
+}
+function renderSalary(){
+  if(session.role!=='manager')return;
+  const shifts=managerSalaryShifts(),rate=Number(data.settings?.managerShiftRate||0),total=shifts.length*rate;
+  salaryMonthLabel.textContent=monthName(viewMonth);
+  salarySessionCount.textContent=shifts.length;
+  salaryRateDisplay.textContent=money(rate);
+  salaryGrandTotal.textContent=money(total);
+  salaryBody.innerHTML=shifts.length?shifts.map(s=>`<tr>
+    <td><b>${viDate(s.date)}</b></td>
+    <td>${safe(s.day)}</td>
+    <td><b>${safe(s.shift)}</b></td>
+    <td>${s.totalClasses}</td>
+    <td>${s.fullyConfirmed}</td>
+    <td class="salary-paid">${money(rate)}</td>
+  </tr>`).join(''):'<tr><td colspan="6"><div class="empty">Chưa có ca nào đủ xác nhận trong tháng này.</div></td></tr>';
+}
+function exportSalaryCSV(){
+  if(session.role!=='manager')return;
+  const shifts=managerSalaryShifts(),rate=Number(data.settings?.managerShiftRate||0);
+  const csv=[['Ngày','Thứ','Ca','Số lớp trong ca','Lớp xác nhận đủ','Đơn giá/ca'],...shifts.map(s=>[viDate(s.date),s.day,s.shift,s.totalClasses,s.fullyConfirmed,rate]),[],['Tổng số ca',shifts.length],['Tổng lương',shifts.length*rate]]
+    .map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='Luong_quan_ly_'+salaryMonthKey()+'.csv';a.click();URL.revokeObjectURL(a.href)
+}
+
+function renderIdentity(){roleLabel.textContent=session.role==='teacher'?(session.teacher||'Giáo viên'):session.role==='manager'?'Quản lý':'Chọn vai trò';identityLabel.textContent=roleLabel.textContent;sideBrand.textContent='Portal Xác Nhận Lịch Dạy';topKicker.textContent=session.role==='manager'?'Hệ thống quản lý':'Hệ thống giáo viên';feedbackNav.querySelector('span:not(.count)').textContent=session.role==='manager'?'Phản hồi giáo viên':'Phản hồi';salaryNav.classList.toggle('hidden',session.role!=='manager')}
+function render(){data=load();populateTeachers();renderIdentity();renderSchedule();renderSalary();renderNotices();renderFeedback();renderWifi();if(window.lucide)lucide.createIcons()}
+function changeMonth(n){viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+n,1,12);render()}
+function goToday(){const n=new Date();viewMonth=new Date(n.getFullYear(),n.getMonth(),1,12);render()}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(()=>t.classList.remove('show'),1900)}
+window.addEventListener('storage',e=>{if(e.key===STORE)render()});if(session.role)roleModal.classList.add('hidden');render();initOneSignalPush();initSupabaseCloud()
+</script>
+</body>
+</html>
